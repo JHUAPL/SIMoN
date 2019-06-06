@@ -1,0 +1,36 @@
+##  Setup
+* clone the repository
+	* `git clone https://bitbucket.xrcs.jhuapl.edu/scm/sim/wrapper2019.git`
+* install Docker
+	* https://docs.docker.com/install/
+* install Docker Compose
+	* https://docs.docker.com/compose/install/
+* install Make
+
+## Usage
+1.  choose the models that you want to run together in the SIMoN framework
+2.  add your chosen models to the "models" list in `broker/config.json`
+3.  add your chosen models to the "services" in `build/docker-compose.yml`
+4.  start SIMoN
+	* `make all`
+5.  shut down SIMoN
+	* `make down` to stop all models
+	* `make clean` to stop all models and clear the database
+
+## Add a new model
+1. create a new directory with 3 required subdirectories, based on `models/template/`
+    * `src/` stores the model's unique source code
+        * `inner_wrapper.py`
+            * required file
+            * must implement `configure()` and `increment()` methods
+            * must specify the model's ID (unique name)
+        * any aditional code that the model needs
+    * `schemas/` stores JSON schemas that data messages must validate against
+        * `input/` schemas that incoming data messages must validate against
+            * `*.json`
+        * `output/` schemas that ougoing data messages must validate against
+            * `*.json`
+    * `config/` stores JSON objects with parameters needed for the model's initialization
+        * `*.json`
+2. add the new model to the "models" list in `broker/config.json`
+3. add the new model to the "services" in `build/docker-compose.yml`
