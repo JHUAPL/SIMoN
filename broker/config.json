@@ -1,0 +1,9 @@
+{
+    "models": [
+        "hector",
+        "water",
+        "power_supply",
+        "power_demand",
+        "population"
+    ]
+}
