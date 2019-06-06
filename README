@@ -1,6 +1,6 @@
 ##  Setup
 * clone the repository
-	* `git clone https://bitbucket.xrcs.jhuapl.edu/scm/sim/wrapper2019.git`
+	* `git clone https://github.com/circuitinstitute/simon.git`
 * install Docker
 	* https://docs.docker.com/install/
 * install Docker Compose
