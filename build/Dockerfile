@@ -5,3 +5,5 @@ RUN wget https://download.opensuse.org/repositories/network:/messaging:/zeromq:/
 RUN apt-get install -y libzmq3-dev
 RUN pip3 install pymongo pyzmq jsonschema networkx geojson
 COPY ./outer_wrapper.py /.
+COPY ./instance-graph.geojson /.
+COPY ./abstract-graph.geojson /.

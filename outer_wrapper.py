@@ -91,6 +91,10 @@ class OuterWrapper(ABC):
         self.broker_queue = Queue()
         self.action_queue = Queue()
 
+        self.abstract_graph = Graph("/abstract-graph.geojson")
+        self.instance_graph = Graph("/instance-graph.geojson")
+        self.instance_graph.nodes['UnitedStates']['area'] = 8081900
+
         self.input_schemas = None
         self.output_schemas = None
         self.validated_schemas = {}
@@ -240,6 +244,7 @@ class OuterWrapper(ABC):
         schemas = self.validated_schemas.copy()
         self.validated_schemas.clear()
         results = self.increment(**schemas)
+        # translate results to the desired granularity?
 
         # validate against output schemas
         for schema_name, data_msg in results.items():

@@ -6,26 +6,6 @@ services:
                 volumes:
                         - ../models/examples/population:/opt:ro
 
-        power_demand:
-                build: ../models/examples/power_demand/
-                volumes:
-                        - ../models/examples/power_demand:/opt:ro
-
-        power_supply:
-                build: ../models/examples/power_supply/
-                volumes:
-                        - ../models/examples/power_supply:/opt:ro
-
-        hector:
-                build: ../models/examples/hector/
-                volumes:
-                - ../models/examples/hector:/opt:ro
-
-        water:
-                build: ../models/examples/water/
-                volumes:
-                - ../models/examples/water:/opt:ro
-
         mongodb:
                 image: mongo:latest
                 container_name: mongodb
