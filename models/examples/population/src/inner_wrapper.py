@@ -20,7 +20,7 @@ class InnerWrapper(OuterWrapper):
         data = pop_sim(self.data)
         self.data = data
         return {'population': {'population': {'data': data, 'granularity': 'county'}}}
-
+#is taking in the data from the previous run
 
 def main():
     wrapper = InnerWrapper()

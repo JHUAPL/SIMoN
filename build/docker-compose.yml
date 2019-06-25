@@ -25,6 +25,10 @@ services:
                 build: ../models/examples/water/
                 volumes:
                 - ../models/examples/water:/opt:ro
+        waterdemand: 
+                build: ../models/examples/waterdemand/
+                volumes:
+                - ../models/examples/waterdemand:/opt:ro
 
         mongodb:
                 image: mongo:latest

@@ -1,9 +1,10 @@
 {
     "models": [
+        "population",
         "hector",
-        "water",
-        "power_supply",
         "power_demand",
-        "population"
+        "power_supply",
+        "water",
+        "waterdemand"
     ]
 }
