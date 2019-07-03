@@ -264,6 +264,7 @@ class OuterWrapper(ABC):
             data_msg['payload'] = data
             data_msg['signal'] = 'data'
             data_msg['source'] = self.model_id
+            data_msg['incstep'] = self.incstep
             self.pub_queue.put(data_msg)
         logging.info("finished the increment")
 
