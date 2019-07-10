@@ -1,0 +1,5 @@
+{
+	"elasticity": 8,
+	"initial_prices": [1, 2, 3],
+	"initial_consumption": [29, 59, 39]
+}

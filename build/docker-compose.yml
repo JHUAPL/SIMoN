@@ -1,30 +1,16 @@
 version: '3'
 
 services:
-        population:
-                build: ../models/examples/population/
-                volumes:
-                        - ../models/examples/population:/opt:ro
 
-        power_demand:
-                build: ../models/examples/power_demand/
+        armington:
+                build: ../models/examples/armington/
                 volumes:
-                        - ../models/examples/power_demand:/opt:ro
+                        - ../models/examples/armington:/opt:ro
 
-        power_supply:
-                build: ../models/examples/power_supply/
+        civil_conflict:
+                build: ../models/examples/civil_conflict/
                 volumes:
-                        - ../models/examples/power_supply:/opt:ro
-
-        hector:
-                build: ../models/examples/hector/
-                volumes:
-                - ../models/examples/hector:/opt:ro
-
-        water:
-                build: ../models/examples/water/
-                volumes:
-                - ../models/examples/water:/opt:ro
+                        - ../models/examples/civil_conflict:/opt:ro
 
         mongodb:
                 image: mongo:latest
