@@ -22,6 +22,7 @@ class Broker:
         self.models = {model: {} for model in models['models']}
         self.model_tracker = set()
         self.incstep = 0
+        self.max_incstep = 8 
         self.boot_timer = 60 # units: seconds
         self.watchdog_timer = 10 # units: seconds
         self.client = None
@@ -198,15 +199,20 @@ class Broker:
                 if status.get('status') != 'ready' or status.get('incstep') != self.incstep:
                     break
             else:
-                logging.info("sending increment pulse {}".format(self.incstep))
-                message = {}
-                message['source'] = self.broker_id
-                message['time'] = time.time()
-                message['signal'] = 'increment'
-                message['status'] = self.status
-                message['incstep'] = self.incstep
-                self.pub_queue.put(message)
-                self.incstep += 1
+                if self.incstep > self.max_incstep:
+                    logging.critical("successfully finished last increment {}".format(self.max_incstep))
+                    logging.critical("Broker will shut down now, current time: {}".format(time.ctime()))
+                    event.set()
+                else:
+                    logging.info("sending increment pulse {}".format(self.incstep))
+                    message = {}
+                    message['source'] = self.broker_id
+                    message['time'] = time.time()
+                    message['signal'] = 'increment'
+                    message['status'] = self.status
+                    message['incstep'] = self.incstep
+                    self.pub_queue.put(message)
+                    self.incstep += 1
 
     def run(self):
         """
