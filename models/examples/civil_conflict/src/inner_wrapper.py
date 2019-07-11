@@ -5,15 +5,6 @@ sys.path.append('/')
 from outer_wrapper import OuterWrapper
 from CivilConflict import CivilConflict
 
-import pymongo
-import gridfs
-MONGO_IP = os.environ.get('MONGO_IP', "mongodb:27017")
-client = pymongo.MongoClient("mongodb://{}/".format(MONGO_IP))
-status = client.server_info()
-print(status)
-files_db = client["files"]
-fs = gridfs.GridFS(files_db)
-
 class InnerWrapper(OuterWrapper):
 
     def __init__(self):
@@ -42,9 +33,11 @@ class InnerWrapper(OuterWrapper):
         self.years.append(self.year_actual)
         conflict = CivilConflict()
         html = conflict.run(self.gdps, self.years)
-        fs.put(html, filename="civil_conflict_inc{}.html".format(self.incstep))
 
-        return {'civil_conflict': {'data_variable_name': {'data': {}, 'granularity': 'county'}}}
+        results = {'civil_conflict': {'data_variable_name': {'data': {}, 'granularity': 'county'}}}
+        htmls = {"civil_conflict_inc{}.html".format(self.incstep): html}
+        images = {}
+        return results, htmls, images
 
 def main():
     wrapper = InnerWrapper()

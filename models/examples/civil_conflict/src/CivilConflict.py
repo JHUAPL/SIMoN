@@ -95,5 +95,5 @@ class CivilConflict:
         tabs = Tabs(tabs=[ tab1, tab2 ])
 
         html = file_html(tabs, CDN, title="civil conflict")
-        html = html.encode()
+        #html = html.encode()
         return html

@@ -5,15 +5,6 @@ sys.path.append('/')
 from outer_wrapper import OuterWrapper
 from armington import ArmingtonTrade
 
-import pymongo
-import gridfs
-MONGO_IP = os.environ.get('MONGO_IP', "mongodb:27017")
-client = pymongo.MongoClient("mongodb://{}/".format(MONGO_IP))
-status = client.server_info()
-print(status)
-files_db = client["files"]
-fs = gridfs.GridFS(files_db)
-
 from bokeh.plotting import figure
 from bokeh.embed import file_html
 from bokeh.resources import CDN
@@ -69,12 +60,12 @@ class InnerWrapper(OuterWrapper):
             consumption = [series[i] for series in self.new_consumption_series]
             consumption_plot.line(range(self.initial_year, self.initial_year + len(self.new_prices_series)), consumption, line_width=2, legend=labels[i], line_color=colors[i])
 
-        # save file in Mongo database
         html = file_html(column(prices_plot, consumption_plot), CDN, title="armington")
-        html = html.encode()
-        fs.put(html, filename="armington_inc{}.html".format(self.incstep))
  
-        return {'armington': {'consumption': {'data': consumption_dict, 'granularity': 'national'}, 'gdp_delta': {'data': {'gdp_delta': delta, 'year_actual': self.initial_year + self.incstep, 'ccode': '500'}, 'granularity': 'national'}}}
+        results = {'armington': {'consumption': {'data': consumption_dict, 'granularity': 'national'}, 'gdp_delta': {'data': {'gdp_delta': delta, 'year_actual': self.initial_year + self.incstep, 'ccode': '500'}, 'granularity': 'national'}}}
+        htmls = {"armington_inc{}.html".format(self.incstep): html}
+        images = {}
+        return results, htmls, images
 
 
 def main():

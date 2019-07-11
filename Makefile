@@ -6,10 +6,13 @@ build-model:
 up:
 	cd build && docker-compose up --build -d
 
+all: build-model up
+
+copy:
+	bash download_files.sh
+
 down:
 	cd build && docker-compose down
-
-all: build-model up
 
 clean: down
 	sudo rm -rf ./data/db
