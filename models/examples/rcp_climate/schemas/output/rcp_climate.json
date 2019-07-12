@@ -1,7 +1,7 @@
 {
   "type": "object",
   "properties": {
-    "power_demand": {
+    "rcp_climate": {
       "type": "object",
       "properties":{
               "data": {"type": "object"},
@@ -9,5 +9,5 @@
       }
     }
   },
-  "required": ["power_demand"]
+  "required": ["rcp_climate"]
 }
