@@ -1,8 +1,8 @@
 {
     "models": [
-        "armington",
-        "civil_conflict",
 	"population",
+	"power_supply",
+	"power_demand",
         "waterdemand"
     ]
 }
