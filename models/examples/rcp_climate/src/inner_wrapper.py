@@ -24,22 +24,16 @@ class InnerWrapper(OuterWrapper):
 
     def increment(self, **kwargs):
         print(self.incstep)
-        wrapped_data = {'temp': self.data}
-        print(wrapped_data)
 
         if self.incstep != 94:
             if 'rcp26data' in kwargs.keys():
-                data = temp_inc(kwargs['rcp26data'], self.incstep)
-                wrapped_data = {'temp': data}
-                self.data = wrapped_data
+                self.data = temp_inc(kwargs['rcp26data'], self.incstep)
             # self.configure(self,**kwargs)
         else:
             if 'rcp26data' in kwargs.keys():
-                data = temp_inc(kwargs['rcp26data'], 94)
-                wrapped_data = {'temp': data}
-                self.data = wrapped_data
+                self.data = temp_inc(kwargs['rcp26data'], 94)
 
-        return {'rcp_climate': {'rcp_climate': {'data': wrapped_data, 'granularity': 'global'}}}
+        return {'rcp_climate': {'rcp_climate': {'data': {'temp': self.data}, 'granularity': 'global'}}}
 
 
 def main():

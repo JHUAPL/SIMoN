@@ -16,15 +16,10 @@ services:
                 volumes:
                         - ../models/examples/power_supply:/opt:ro
 
-        hector:
-                build: ../models/examples/hector/
+        rcp_climate:
+                build: ../models/examples/rcp_climate/
                 volumes:
-                - ../models/examples/hector:/opt:ro
-
-        water:
-                build: ../models/examples/water/
-                volumes:
-                - ../models/examples/water:/opt:ro
+                - ../models/examples/rcp_climate:/opt:ro
 
         mongodb:
                 image: mongo:latest
