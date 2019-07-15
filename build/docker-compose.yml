@@ -11,6 +11,15 @@ services:
                 build: ../models/examples/civil_conflict/
                 volumes:
                         - ../models/examples/civil_conflict:/opt:ro
+        population: 
+                build: ../models/examples/population/
+                volumes:
+                - ../models/examples/population:/opt:ro
+
+        waterdemand: 
+                build: ../models/examples/waterdemand/
+                volumes:
+                - ../models/examples/waterdemand:/opt:ro
 
         mongodb:
                 image: mongo:latest

@@ -23,7 +23,7 @@ class Broker:
         self.models = {model: {} for model in models['models']}
         self.model_tracker = set()
         self.incstep = 0
-        self.max_incstep = 8 
+        self.max_incstep = 4
         self.boot_timer = 60 # units: seconds
         self.watchdog_timer = 10 # units: seconds
         self.client = None
