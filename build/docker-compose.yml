@@ -6,6 +6,11 @@ services:
                 volumes:
                         - ../models/examples/population:/opt:ro
 
+        rcp_climate:
+                build: ../models/examples/rcp_climate/
+                volumes:
+                        - ../models/examples/rcp_climate:/opt:ro
+
         power_demand:
                 build: ../models/examples/power_demand/
                 volumes:
@@ -16,18 +21,11 @@ services:
                 volumes:
                         - ../models/examples/power_supply:/opt:ro
 
-        rcp_climate:
-                build: ../models/examples/rcp_climate/
-                volumes:
-                - ../models/examples/rcp_climate:/opt:ro
-
         mongodb:
                 image: mongo:latest
                 container_name: mongodb
                 labels:
                         simon: "database"
-                volumes:
-                        - ../data/db:/data/db
                 expose:
                         - "27017"
                 ports:
