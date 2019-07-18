@@ -18,7 +18,7 @@ def temp_inc(init_data, year):
             mean_glob_temps.append(json1_data[i][j][year][2]-273.15)
     return np.mean(mean_glob_temps)
 
-# with open("D:/STW_Models/simon/models/examples/rcp_climate/config/rcp26data.json", 'r') as file:
+# with open("D:/STW_Models/simon/models/examples/rcp_climate/config/rcp85data.json", 'r') as file:
 #     test = json.load(file)
 #
 # print(temp_inc(test, 94))
