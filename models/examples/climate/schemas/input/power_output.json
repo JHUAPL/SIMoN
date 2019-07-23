@@ -1,0 +1,20 @@
+{
+  "type": "object",
+  "properties": {
+    "co2": {
+      "type": "object",
+      "properties":{
+        "data": {"type": "object"},
+        "granularity": {"type": "string"}
+      }
+    },
+    "thermo_water": {
+      "type": "object",
+      "properties":{
+        "data": {"type": "object"},
+        "granularity": {"type": "string"}
+      }
+    }
+  },
+  "required": ["co2", "thermo_water"]
+}

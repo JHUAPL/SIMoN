@@ -1,0 +1,13 @@
+{
+  "type": "object",
+  "properties": {
+    "climate": {
+      "type": "object",
+      "properties":{
+          "data": {"type": "object"},
+          "granularity": {"type": "string"}
+      }
+    }
+  },
+  "required": ["climate"]
+}

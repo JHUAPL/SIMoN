@@ -1,32 +1,33 @@
 import glob
 import sys
+import fair
 sys.path.append('/')
 from outer_wrapper import OuterWrapper
-from Water_Demand_Model import waterdemand1
+from climate import temperature_simulation
+
+#put the json file from the output of power supply into the schemas/input file
 
 class InnerWrapper(OuterWrapper):
 
     def __init__(self):
         num_input_schemas = len(glob.glob("/opt/schemas/input/*.json"))
-        super().__init__(model_id="waterdemand", num_expected_inputs=num_input_schemas)
+        super().__init__(model_id="climate", num_expected_inputs=num_input_schemas)
+        #self.electric=None
 
     def configure(self, **kwargs):
-        if 'rates' in kwargs.keys():
-            self.rate=kwargs['rates']
-#replace the populations with the 2015 water consumption rate
-#need to take out the extra variable 
+        if 'co2' in kwargs.keys():
+            self.electric = kwargs['co2']
+        if 'thermo_water' in kwargs.keys():
+            self.electric = kwargs['thermo_water']
+
     def increment(self, **kwargs):
-        if 'population' in kwargs.keys():
-            self.countypop = kwargs['population']['population']['data']
-        else:
-            print('input population not found')
-        if 'rate' in kwargs.keys()
-            self.rate = kwargs['population']['data']
-        else:
-            print('input rate not found')
-        demand = Water_Demand_Simulation(self.countypop)
-       
-        return {'waterdemand': {'waterdemand': {'data': demand, 'granularity': 'county'}}}
+        if 'power_output' in kwargs.keys():
+            self.electric = kwargs['power_output']['co2']['data']
+        else: 
+            print('input co2 not found')
+        temperature=float(temperature_simulation(self.electric))
+        
+        return {'climate': { 'climate': {'data': {'global_temp': temperature}, 'granularity': 'global'}}}
 
 
 def main():
