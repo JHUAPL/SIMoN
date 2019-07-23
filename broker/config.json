@@ -4,7 +4,8 @@
         "hector",
         "power_demand",
         "power_supply",
-        "water",
-        "waterdemand"
+        "waterdemand",
+        "climate",
+        "logisticpopulation"
     ]
 }

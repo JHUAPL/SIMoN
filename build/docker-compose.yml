@@ -21,14 +21,20 @@ services:
                 volumes:
                 - ../models/examples/hector:/opt:ro
 
-        water:
-                build: ../models/examples/water/
-                volumes:
-                - ../models/examples/water:/opt:ro
         waterdemand: 
                 build: ../models/examples/waterdemand/
                 volumes:
                 - ../models/examples/waterdemand:/opt:ro
+        
+        climate: 
+                build: ../models/examples/climate/
+                volumes:
+                - ../models/examples/climate:/opt:ro
+        
+        logisticpopulation:
+                build: ../models/examples/logisticpopulation/
+                volumes:
+                - ../models/examples/logisticpopulation:/opt:ro
 
         mongodb:
                 image: mongo:latest

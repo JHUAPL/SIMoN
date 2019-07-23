@@ -245,6 +245,9 @@ class OuterWrapper(ABC):
         for schema_name, data_msg in results.items():
             try:
                 validate(data_msg, json.loads(self.generic_output_schema))
+                print(schema_name)
+                print(data_msg)
+                print(self.output_schemas)
                 validate(data_msg, self.output_schemas[schema_name])
             except Exception as e:
                 logging.critical("message {} failed to validate schema {}".format(data_msg, schema_name))
@@ -264,6 +267,7 @@ class OuterWrapper(ABC):
             data_msg['payload'] = data
             data_msg['signal'] = 'data'
             data_msg['source'] = self.model_id
+            data_msg['incstep'] = self.incstep
             self.pub_queue.put(data_msg)
         logging.info("finished the increment")
 

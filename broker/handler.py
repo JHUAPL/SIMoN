@@ -23,7 +23,7 @@ class Broker:
         self.model_tracker = set()
         self.incstep = 0
         self.boot_timer = 60 # units: seconds
-        self.watchdog_timer = 10 # units: seconds
+        self.watchdog_timer = 30 # units: seconds
         self.client = None
         self.mongo_queue = Queue()
         self.broker_id = 'broker'
