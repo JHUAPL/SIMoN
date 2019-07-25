@@ -22,9 +22,10 @@ class InnerWrapper(OuterWrapper):
             print('rcp data not found')
 
     def increment(self, **kwargs):
+        # mean global temperature for the current year
         self.data = temp_inc(self.raw_data, self.incstep)
 
-        return {'rcp_climate': {'rcp_climate': {'data': {'temp': self.data}, 'granularity': 'global'}}}
+        return {'rcp_climate': {'mean_temp': {'data': {'temp': self.mean_temp}, 'granularity': 'global'}, 'climate_grids': {'data': {}, 'granularity': 'climate'}}}
 
 
 def main():
