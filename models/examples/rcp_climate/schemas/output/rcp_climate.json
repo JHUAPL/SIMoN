@@ -1,20 +1,23 @@
 {
   "type": "object",
   "properties": {
-    "mean_temp": {
+    "global_temp": {
       "type": "object",
       "properties":{
-        "data": {"type": "object"},
-        "granularity": {"type": "string"}
-      }
-    },
-    "climate_grids": {
-      "type": "object",
-      "properties":{
-        "data": {"type": "object"},
-        "granularity": {"type": "string"}
+              "data": {"type": "object"},
+              "granularity": {"type": "string"}
       }
     }
   },
-  "required": ["mean_temp", "climate_grids"]
+  "type": "object",
+  "properties": {
+    "rcp": {
+      "type": "object",
+      "properties":{
+              "data": {"type": "object"},
+              "granularity": {"type": "string"}
+      }
+    }
+  },
+  "required": ["global_temp", "rcp"]
 }
