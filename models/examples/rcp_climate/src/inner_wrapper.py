@@ -4,6 +4,7 @@ sys.path.append('/')
 from outer_wrapper import OuterWrapper
 from climate_model import temp_inc
 
+
 class InnerWrapper(OuterWrapper):
 
     def __init__(self):
@@ -13,7 +14,7 @@ class InnerWrapper(OuterWrapper):
     def configure(self, **kwargs):
         self.raw_data = kwargs['rcp26data']
         if 'rcp26data' in kwargs.keys():
-            self.data = temp_inc(self.raw_data, self.incstep)
+            self.mean_temp, self.climate_data = temp_inc(self.raw_data, self.incstep)
         # elif 'rcp60data' in kwargs.keys():
         #     self.data = temp_inc(kwargs['rcp60data'], self.incstep)
         # elif 'rcp85data' in kwargs.keys():
@@ -22,9 +23,12 @@ class InnerWrapper(OuterWrapper):
             print('rcp data not found')
 
     def increment(self, **kwargs):
-        self.data = temp_inc(self.raw_data, self.incstep)
+        self.mean_temp, self.climate_data = temp_inc(self.raw_data, self.incstep)
 
-        return {'rcp_climate': {'rcp_climate': {'data': {'temp': self.data}, 'granularity': 'global'}}}
+        return {
+            {'rcp_climate': {'rcp_climate': {'data': {'temp': self.mean_temp}, 'granularity': 'global'}}},
+            {'rcp_climate': {'rcp_climate': {'data': {'climate_grid': self.climate_data}, 'granularity': 'climate'}
+                             }}}
 
 
 def main():
