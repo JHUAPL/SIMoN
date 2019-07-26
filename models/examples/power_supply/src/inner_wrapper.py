@@ -19,7 +19,7 @@ class InnerWrapper(OuterWrapper):
             self.dem = kwargs['2016 demand']
 
     def increment(self, **kwargs):
-        if 'population' in kwargs.keys():
+        if 'power_demand' in kwargs.keys():
             self.dem = kwargs['power_demand']['power_demand']['data']
         else:
             print('input demand not found')
