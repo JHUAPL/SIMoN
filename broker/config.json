@@ -1,5 +1,7 @@
 {
     "models": [
+	"power_demand",
+	"power_supply",
         "population"
     ]
 }
