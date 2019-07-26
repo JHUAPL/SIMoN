@@ -1,11 +1,8 @@
 {
     "models": [
         "population",
-        "hector",
         "power_demand",
         "power_supply",
-        "waterdemand",
-        "climate",
-        "logisticpopulation"
+        "waterdemand"
     ]
 }
