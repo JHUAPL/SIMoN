@@ -25,7 +25,9 @@ class InnerWrapper(OuterWrapper):
     def increment(self, **kwargs):
         self.global_temp, self.climate_data = temp_inc(self.raw_data, self.incstep)
 
-        return {'rcp_climate': {'global_temp': {'data': {'temp': self.global_temp}, 'granularity': 'global'}, 'rcp': {'data': self.climate_data, 'granularity': 'climate'}}}
+        translated = self.translate(self.climate_data, 'climate', 'HUC8', self.model_id)
+
+        return {'rcp_climate': {'global_temp': {'data': {'temp': self.global_temp}, 'granularity': 'global'}, 'rcp': {'data': translated, 'granularity': 'climate'}}}
 
 
 def main():
