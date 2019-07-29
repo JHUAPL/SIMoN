@@ -25,8 +25,11 @@ class InnerWrapper(OuterWrapper):
             print('input demand not found')
         emissions, water = gen_sim(self.dem, self.prof)
 
-        return {'power_output': { 'co2': {'data': emissions, 'granularity': 'county'},
-                'thermo_water': {'data': water, 'granularity': 'county'}}}
+        translated_emissions = self.translate(emissions, 'county', 'NERC', self.model_id)
+        translated_water = self.translate(water, 'county', 'NERC', self.model_id)
+
+        return {'power_output': { 'co2': {'data': translated_emissions, 'granularity': 'county'},
+                'thermo_water': {'data': translated_water, 'granularity': 'county'}}}
 
 
 def main():
