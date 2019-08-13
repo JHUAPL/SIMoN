@@ -9,7 +9,7 @@ class InnerWrapper(OuterWrapper):
 
     def __init__(self):
         num_input_schemas = len(glob.glob("/opt/schemas/input/*.json"))
-        super().__init__(model_id="power_demand", num_expected_inputs=num_input_schemas) ##change model id to waterdemand
+        super().__init__(model_id="power_demand", num_expected_inputs=num_input_schemas)
 
     def configure(self, **kwargs): #this would be the water consumption rate in here 
         if 'state consumption per capita' in kwargs.keys(): #instead of state, do water 2015, the json we made

@@ -9,7 +9,7 @@ class InnerWrapper(OuterWrapper):
 
     def __init__(self):
         num_input_schemas = len(glob.glob("/opt/schemas/input/*.json"))
-        super().__init__(model_id="waterdemand", num_expected_inputs=num_input_schemas)
+        super().__init__(model_id="water_demand", num_expected_inputs=num_input_schemas)
 
     def configure(self, **kwargs):
         if 'rates' in kwargs.keys():
@@ -28,7 +28,7 @@ class InnerWrapper(OuterWrapper):
 
         html = CountyMap(demand) 
 
-        results = {'waterdemand': {'waterdemand': {'data': translated_demand, 'granularity': 'HUC8'}}}
+        results = {'water_demand': {'water_demand': {'data': translated_demand, 'granularity': 'HUC8'}}}
         htmls = {"water_demand_inc{}.html".format(self.incstep): html}
         images = {}
         return results, htmls, images

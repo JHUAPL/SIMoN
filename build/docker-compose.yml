@@ -7,10 +7,10 @@ services:
                 volumes:
                 - ../models/examples/population:/opt:ro
 
-        waterdemand: 
-                build: ../models/examples/waterdemand/
+        water_demand:
+                build: ../models/examples/water_demand/
                 volumes:
-                        - ../models/examples/waterdemand:/opt:ro
+                        - ../models/examples/water_demand:/opt:ro
 
         rcp_climate:
                 build: ../models/examples/rcp_climate/

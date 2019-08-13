@@ -1,7 +1,7 @@
 {
   "type": "object",
   "properties": {
-    "waterdemand": {
+    "water_demand": {
       "type": "object",
       "properties":{
               "data": {"type": "object"},
@@ -9,5 +9,5 @@
       }
     }
   },
-  "required": ["waterdemand"]
+  "required": ["water_demand"]
 }
