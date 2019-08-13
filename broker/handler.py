@@ -22,8 +22,9 @@ class Broker:
             models = json.load(models_file)
         self.models = {model: {} for model in models['models']}
         self.model_tracker = set()
-        self.incstep = 0
-        self.max_incstep = 4
+        self.incstep = 1
+        self.max_incstep = 50
+        self.initial_year = 2016
         self.boot_timer = 60 # units: seconds
         self.watchdog_timer = 10 # units: seconds
         self.client = None
@@ -59,10 +60,10 @@ class Broker:
                     payload = message[1]
                     if payload['signal'] == 'file_string':
                         data = payload['payload'].encode()
-                        fs.put(data, filename=payload['name'], incstep=payload['incstep'], source=payload['source'])
+                        fs.put(data, filename=payload['name'], incstep=payload['incstep'], year=payload['incstep'] + self.initial_year, source=payload['source'])
                     elif payload['signal'] == 'file_bytes':
                         data = payload['payload'].decode('base64')
-                        fs.put(data, filename=payload['name'], incstep=payload['incstep'], source=payload['source'])
+                        fs.put(data, filename=payload['name'], incstep=payload['incstep'], year=payload['incstep'] + self.initial_year, source=payload['source'])
                 else:
                     messages_col = metadata_db[collection]
                     payload = message[1]
@@ -85,6 +86,8 @@ class Broker:
             message['signal'] = 'status'
             message['status'] = self.status
             message['incstep'] = self.incstep
+            message['initial_year'] = self.initial_year
+            message['current_year'] = self.incstep + self.initial_year
             self.pub_queue.put(message)
 
     def pub(self, event):
@@ -225,6 +228,7 @@ class Broker:
                     message['signal'] = 'increment'
                     message['status'] = self.status
                     message['incstep'] = self.incstep
+                    message['year'] = self.incstep + self.initial_year
                     self.pub_queue.put(message)
                     self.incstep += 1
 
