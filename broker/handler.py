@@ -26,7 +26,7 @@ class Broker:
         self.max_incstep = 50
         self.initial_year = 2016
         self.boot_timer = 60 # units: seconds
-        self.watchdog_timer = 30 # units: seconds
+        self.watchdog_timer = 60 # units: seconds
         self.client = None
         self.mongo_queue = Queue()
         self.broker_id = 'broker'

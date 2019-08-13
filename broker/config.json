@@ -3,6 +3,7 @@
 	"population",
 	"power_supply",
 	"power_demand",
-        "waterdemand"
+        "waterdemand",
+	"rcp_climate"
     ]
 }

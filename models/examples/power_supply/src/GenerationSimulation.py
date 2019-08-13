@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Created on Wed Jul 11 15:14:47 2018
 
@@ -49,5 +48,4 @@ def gen_sim(demand,prof):
 #3. scale p.p. data
 #4. aggregate it to anything you want, you want it as tight as possible so probably countynerc
 ## will be easily able to do things and we will be happy the nerc is there, still being processed at powerplant but given a scaling factor
-
 
