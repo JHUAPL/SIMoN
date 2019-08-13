@@ -25,14 +25,15 @@ class InnerWrapper(OuterWrapper):
         else:
             print('input demand not found')
         emissions, water = gen_sim(self.dem, self.prof)
+        translated_emissions = self.translate(emissions, 'county', 'NERC', self.model_id)
+        translated_water = self.translate(water, 'county', 'NERC', self.model_id)
 
         emissions_html = CountyMap(emissions, "co2 emissions")
         water_html = CountyMap(water, "thermo water")
         htmls = {"emissions_inc{}.html".format(self.incstep): emissions_html, "thermo_water_inc{}.html".format(self.incstep): water_html}
-        results = {'power_output': { 'co2': {'data': emissions, 'granularity': 'county'},
-                'thermo_water': {'data': water, 'granularity': 'county'}}}
+        results = {'power_output': { 'co2': {'data': translated_emissions, 'granularity': 'NERC'},
+                'thermo_water': {'data': translated_water, 'granularity': 'NERC'}}}
         return results, htmls, {}
-
 
 def main():
     wrapper = InnerWrapper()
