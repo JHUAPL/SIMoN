@@ -3,7 +3,6 @@ import sys
 sys.path.append('/')
 from outer_wrapper import OuterWrapper
 from GenerationSimulation import gen_sim
-from bokeh_county_map import CountyMap
 
 class InnerWrapper(OuterWrapper):
 
@@ -28,12 +27,9 @@ class InnerWrapper(OuterWrapper):
         translated_emissions = self.translate(emissions, 'county', 'NERC', self.model_id)
         translated_water = self.translate(water, 'county', 'NERC', self.model_id)
 
-        emissions_html = CountyMap(emissions, "co2 emissions")
-        water_html = CountyMap(water, "thermo water")
-        htmls = {"emissions_inc{}.html".format(self.incstep): emissions_html, "thermo_water_inc{}.html".format(self.incstep): water_html}
         results = {'power_output': { 'co2': {'data': translated_emissions, 'granularity': 'NERC'},
                 'thermo_water': {'data': translated_water, 'granularity': 'NERC'}}}
-        return results, htmls, {}
+        return results, {}, {}
 
 def main():
     wrapper = InnerWrapper()

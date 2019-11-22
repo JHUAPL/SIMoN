@@ -3,7 +3,6 @@ import sys
 sys.path.append('/')
 from outer_wrapper import OuterWrapper
 from DemandSimulation import pow_dem_sim #for water demand, going to do something similar ##
-from bokeh_county_map import CountyMap
 
 class InnerWrapper(OuterWrapper):
 
@@ -26,12 +25,10 @@ class InnerWrapper(OuterWrapper):
             print('input population not found')
         demand = pow_dem_sim(self.pop, self.cons) #instead of power demand simulation, have water demand, your inputs will be population and consumption rate, #do water demand sim, #and change inputs to the actual name of our arguments 
 
-        html = CountyMap(demand)
-        htmls = {"power_demand_inc{}.html".format(self.incstep): html}
         results = {'power_demand': {'power_demand': {'data': demand, 'granularity': 'county'}}} #obviously this will all say water demand isntead of power demand 
 #checks to see if it has data on population, writes it to selfpop and outputs power demand
     #does not use self because it doesnt use its own previous data 
-        return results, htmls, {}
+        return results, {}, {}
 
 def main():
     wrapper = InnerWrapper()

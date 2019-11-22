@@ -3,7 +3,6 @@ import sys
 sys.path.append('/')
 from outer_wrapper import OuterWrapper
 from Water_Demand_Model import Water_Demand_Simulation
-from bokeh_county_map import CountyMap
 
 class InnerWrapper(OuterWrapper):
 
@@ -26,12 +25,8 @@ class InnerWrapper(OuterWrapper):
         demand = Water_Demand_Simulation(self.countypop, self.rate)
         translated_demand = self.translate(demand, 'county', 'HUC8', self.model_id)
 
-        html = CountyMap(demand) 
-
         results = {'water_demand': {'water_demand': {'data': translated_demand, 'granularity': 'HUC8'}}}
-        htmls = {"water_demand_inc{}.html".format(self.incstep): html}
-        images = {}
-        return results, htmls, images
+        return results, {}, {}
 
 
 def main():
