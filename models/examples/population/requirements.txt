@@ -1,0 +1,5 @@
+pandas
+numpy
+statsmodels
+scipy==1.2.1
+bokeh
