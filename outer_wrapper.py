@@ -144,7 +144,7 @@ class OuterWrapper(ABC):
 
     def meet(self, a, b, graph=None):
         sort = sorted((a, b))
-        return "{}^{}".format(sort[0], sort[1])
+        return f"{sort[0]}^{sort[1]}"
 
     def aggregate(self, data, src, dest, agg_name="simple_sum"):
         if src == dest:
@@ -157,7 +157,7 @@ class OuterWrapper(ABC):
             parents = defaultdict(list)
             for instance, value in data.items():
                 if instance not in self.instance_graph.nodes:
-                    logging.warning("instance {} not in instance graph".format(instance))
+                    logging.warning(f"instance {instance} not in instance graph")
                     continue
                 parent = [parent for parent in self.instance_graph.predecessors(instance) if self.instance_graph.nodes[parent]['type'] == path[1]]
                 assert len(parent) == 1
@@ -181,7 +181,7 @@ class OuterWrapper(ABC):
             for instance, value in data.items():
                 trans_func = self.instance_graph.functions.get(disagg_name)
                 if instance not in self.instance_graph.nodes:
-                    logging.warning("instance {} not in instance graph".format(instance))
+                    logging.warning(f"instance {instance} not in instance graph")
                 else:
                     tmp = trans_func(value, instance, path[1])
                     translated = {**translated, **tmp}
@@ -218,8 +218,8 @@ class OuterWrapper(ABC):
             return aggregated
 
         else:
-            logging.critical("error translating {} from {} to {}, no path found".format(variable, src, dest))
-            raise Exception("error translating {} from {} to {}, no path found".format(variable, src, dest))
+            logging.critical(f"error translating {variable} from {src} to {dest}, no path found")
+            raise Exception(f"error translating {variable} from {src} to {dest}, no path found")
 
     def load_json_objects(self, dir_path):
         """
@@ -230,7 +230,7 @@ class OuterWrapper(ABC):
         """
 
         schemas = {}
-        for schema in glob.glob('{}/*.json'.format(dir_path)):
+        for schema in glob.glob(f'{dir_path}/*.json'):
             with open(schema) as schema_file:
                 file_name = os.path.splitext(os.path.basename(schema))[0]
                 schemas[file_name] = json.load(schema_file)
@@ -244,7 +244,7 @@ class OuterWrapper(ABC):
         :return:
         """
 
-        raise NotImplementedError("configure() has to be implemented in the {} inner wrapper".format(self.model_id))
+        raise NotImplementedError(f"configure() has to be implemented in the {self.model_id} inner wrapper")
 
     @abstractmethod
     def increment(self, **kwargs):
@@ -254,7 +254,7 @@ class OuterWrapper(ABC):
         :return:
         """
 
-        raise NotImplementedError("increment() has to be implemented in the {} inner wrapper".format(self.model_id))
+        raise NotImplementedError(f"increment() has to be implemented in the {self.model_id} inner wrapper")
 
     def increment_handler(self, event, incstep):
         """
@@ -265,12 +265,12 @@ class OuterWrapper(ABC):
         """
 
         self.increment_flag = True
-        logging.info("about to increment, incstep {}, year {}".format(incstep, self.initial_year + incstep))
+        logging.info(f"about to increment, incstep {incstep}, year {self.initial_year + incstep}")
         self.incstep = incstep
 
         # validate against input schemas
         if incstep > 1 and len(self.validated_schemas) != self.num_expected_inputs:
-            logging.critical("number of validated schemas {} != num_expected_inputs {}".format(len(self.validated_schemas), self.num_expected_inputs))
+            logging.critical(f"number of validated schemas {len(self.validated_schemas)} != num_expected_inputs {self.num_expected_inputs}")
             event.set()
             raise RuntimeError
 
@@ -285,7 +285,7 @@ class OuterWrapper(ABC):
                 validate(data_msg, json.loads(self.generic_output_schema))
                 validate(data_msg, self.output_schemas[schema_name])
             except Exception as e:
-                logging.critical("message {} failed to validate schema {}".format(data_msg, schema_name))
+                logging.critical(f"message {data_msg} failed to validate schema {schema_name}")
                 event.set()
                 raise RuntimeError
 
@@ -322,7 +322,7 @@ class OuterWrapper(ABC):
             file_msg['incstep'] = self.incstep
             file_msg['year'] = self.incstep + self.initial_year
             self.pub_queue.put(file_msg)
-        logging.info("finished increment {}, year {}".format(self.incstep, self.incstep + self.initial_year))
+        logging.info(f"finished increment {self.incstep}, year {self.incstep + self.initial_year}")
         self.incstep += 1
 
     def send_status(self, event):
@@ -387,7 +387,7 @@ class OuterWrapper(ABC):
         context = zmq.Context()
         sock = context.socket(zmq.PUB)
         sock.setsockopt(zmq.LINGER, 1000)
-        sock.connect('tcp://{}:{}'.format('broker', '5555'))
+        sock.connect('tcp://broker:5555')
 
         while not event.is_set():
 
@@ -412,7 +412,7 @@ class OuterWrapper(ABC):
             for name, schema in self.output_schemas.items():
                 try:
                     validate(message['payload'], schema)
-                    logging.info("validated outgoing message: {}".format(message))
+                    logging.info(f"validated outgoing message: {message}")
                     matched.append(schema)
                     for item in message['payload']:
                         src_gran = message['payload'][item]['granularity']
@@ -428,12 +428,12 @@ class OuterWrapper(ABC):
                 except json.JSONDecodeError:
                     logging.warning("json decode error")
             if len(matched) == 0:
-                logging.info("message didn't match any output schemas: {}".format(message['source']))
+                logging.info(f"message didn't match any output schemas: {message['source']}")
             elif len(matched) == 1:
-                logging.info("message matched an output schema: {}".format(message['source']))
+                logging.info(f"message matched an output schema: {message['source']}")
                 sock.send_json(message)
             else:
-                logging.critical("more than one output schema was matched: {}".format(message['source']))
+                logging.critical(f"more than one output schema was matched: {message['source']}")
                 event.set()
 
         sock.close()
@@ -454,7 +454,7 @@ class OuterWrapper(ABC):
         sock.setsockopt(zmq.SUBSCRIBE, b"")
         sock.setsockopt(zmq.RCVTIMEO, 0)
         sock.setsockopt(zmq.LINGER, 1000)
-        sock.connect('tcp://{}:{}'.format('broker', '5556'))
+        sock.connect('tcp://broker:5556')
 
         while not event.is_set():
             try:
@@ -489,9 +489,9 @@ class OuterWrapper(ABC):
         for name, schema in self.input_schemas.items():
             try:
                 validate(message['payload'], schema)
-                logging.info("schema {} validated incoming message: {}".format(name, message))
+                logging.info(f"schema {name} validated incoming message: {message}")
                 if name in self.validated_schemas:
-                    logging.error("schema {} already validated a message: {}".format(name, message))
+                    logging.error(f"schema {name} already validated a message: {message}")
                     return False
                 else:
                     matched.append(schema)
@@ -511,7 +511,7 @@ class OuterWrapper(ABC):
                 logging.warning("json decode error")
 
         if len(matched) == 0:
-            logging.info("message didn't match any input schemas: {}".format(message['source']))
+            logging.info(f"message didn't match any input schemas: {message['source']}")
         return True
 
     def action_worker(self, event):
@@ -592,4 +592,4 @@ class OuterWrapper(ABC):
             logging.critical(e)
         finally:
             shutdown.set()
-            logging.critical("{} model has shut down".format(self.model_id))
+            logging.critical(f"{self.model_id} model has shut down")

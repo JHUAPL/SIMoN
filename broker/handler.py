@@ -43,7 +43,7 @@ class Broker:
         """
 
         try:
-            self.client = pymongo.MongoClient('mongodb://{}/'.format('mongodb:27017'))
+            self.client = pymongo.MongoClient('mongodb://mongodb:27017/')
             logging.info("connected to Mongo DB")
         except Exception as e:
             logging.error("failed to connect to Mongo DB")
@@ -100,7 +100,7 @@ class Broker:
         context = zmq.Context()
         sock = context.socket(zmq.PUB)
         sock.setsockopt(zmq.LINGER, 1000)
-        sock.connect('tcp://{}:{}'.format('broker', '5555'))
+        sock.connect('tcp://broker:5555')
         while not event.is_set():
             try:
                 message = self.pub_queue.get(timeout=0.1)
@@ -124,7 +124,7 @@ class Broker:
         sock.setsockopt(zmq.SUBSCRIBE, b"")
         sock.setsockopt(zmq.RCVTIMEO, 0)
         sock.setsockopt(zmq.LINGER, 1000)
-        sock.connect('tcp://{}:{}'.format('broker', '5556'))
+        sock.connect('tcp://broker:5556')
         while not event.is_set():
             try:
                 message = sock.recv_json()
@@ -195,9 +195,8 @@ class Broker:
                     break
             else:
                 missing_models = set(self.models.keys()) - self.model_tracker
-                logging.critical("Timed out waiting for {}{}"
-                                 .format(missing_models, " to initialize" if self.status == 'booting' else ""))
-                logging.critical("Broker will shut down now, current time: {}".format(time.ctime()))
+                logging.critical(f"Timed out waiting for {missing_models}{' to initialize' if self.status == 'booting' else ''}")
+                logging.critical(f"Broker will shut down now, current time: {time.ctime()}")
                 event.set()
 
     def send_increment_pulse(self, event):
@@ -217,11 +216,11 @@ class Broker:
                     break
             else:
                 if self.incstep > self.max_incstep and self.mongo_queue.empty():
-                    logging.critical("successfully finished last increment {}".format(self.max_incstep))
-                    logging.critical("Broker will shut down now, current time: {}".format(time.ctime()))
+                    logging.critical(f"successfully finished last increment {self.max_incstep}")
+                    logging.critical(f"Broker will shut down now, current time: {time.ctime()}")
                     event.set()
                 else:
-                    logging.info("sending increment pulse {}".format(self.incstep))
+                    logging.info(f"sending increment pulse {self.incstep}")
                     message = {}
                     message['source'] = self.broker_id
                     message['time'] = time.time()
