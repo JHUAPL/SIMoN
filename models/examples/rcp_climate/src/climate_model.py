@@ -20,14 +20,14 @@ def temp_inc(init_data, year):
     for i in json1_data:
         if 50 >= float(i) >= 23:
             # Convert to format that plays nice with mongodb; only get U.S squares
-            single_year_US[i.replace('.', '_')] = {}
+            single_year_US[i] = {}
         for j in json1_data[i]:
             # Use two outputs, single global mean temperature and gridded climate data
             mean_glob_temps.append(json1_data[i][j][year][3])
 
             # Contiguous U.S bounded by (49 N, 122W), (24N 66W)
             if 50 >= float(i) >= 23 and -65 >= float(j) >= -130:
-                single_year_US[i.replace('.', '_')][j.replace('.', '_')] = (
+                single_year_US[i][j] = (
                     json1_data[i][j][year][0], json1_data[i][j][year][1], json1_data[i][j][year][2],
                     json1_data[i][j][year][3]-273.15
                 )
@@ -40,9 +40,10 @@ def temp_inc(init_data, year):
     translated = {}
     for lat, lat_values in single_year_US.items():
         for lon, lon_values in lat_values.items():
-            print(lat, lon)
-            num = 144*(float(lat.replace("_", ".")) + 89)/2 + (float(lon.replace("_", ".")) + 180 - 1.25)/2.5
-            translated["climate{:.1f}".format(num)] = lon_values[0]
+            lon = float(lon)
+            if lon < 0:
+                lon += 180
+            translated["lat_" + str(lat) + "_lon_" + str(lon)] = lon_values[0]
 
     return weighted_sum-273.15, translated #single_year_US
 
