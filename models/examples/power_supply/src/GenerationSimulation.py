@@ -18,9 +18,9 @@ def gen_sim(demand,prof):
     state_demand = state_demand.to_frame().reset_index()
     counties = pd.merge(counties, state_demand, on='state',how='left')
     counties = pd.merge(counties, state_prof, on='state',how='left')
-    counties['Fuel Used (MMBtu)'] = counties.apply(lambda x: (x.demand_y * x['MMBtu per MWh']) * (x.demand_x / x.demand_y),axis=1)
-    counties['CO2 Emissions (tons)'] = counties.apply(lambda x: (x.demand_y * x['Tons CO2 per MWh']) * (x.demand_x / x.demand_y),axis=1)
-    counties['Water Used (Mgal)'] = counties.apply(lambda x: (x.demand_y * x['Mgal_per_MWh']) * (x.demand_x / x.demand_y),axis=1)
+    counties['Fuel Used (MMBtu)'] = counties.apply(lambda x: (x['MMBtu per MWh']) * (x.demand_x),axis=1)
+    counties['CO2 Emissions (tons)'] = counties.apply(lambda x: (x['Tons CO2 per MWh']) * (x.demand_x),axis=1)
+    counties['Water Used (Mgal)'] = counties.apply(lambda x: (x['Mgal_per_MWh']) * (x.demand_x),axis=1)
     counties = counties[['county','Fuel Used (MMBtu)','CO2 Emissions (tons)','Water Used (Mgal)']].set_index('county')
     
 #    data = counties.to_dict(orient='index')
