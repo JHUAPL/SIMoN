@@ -23,9 +23,8 @@ class InnerWrapper(OuterWrapper):
         else:
             print('input population not found')
         demand = Water_Demand_Simulation(self.countypop, self.rate)
-        translated_demand = self.translate(demand, 'county', 'HUC8', self.model_id)
 
-        results = {'water_demand': {'water_demand': {'data': translated_demand, 'granularity': 'HUC8'}}}
+        results = {'water_demand': {'water_demand': {'data': demand, 'granularity': 'county'}}}
         return results, {}, {}
 
 
