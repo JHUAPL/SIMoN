@@ -5,7 +5,7 @@
       "type": "object",
       "properties":{
               "data": {"type": "object"},
-              "granularity": {"type": "string"}
+              "granularity": {"type": "string", "value": "state"}
       }
     }
   },

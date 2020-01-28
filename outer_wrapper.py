@@ -18,52 +18,78 @@ class Graph(nx.DiGraph):
 
     def __init__(self, filename=None):
         super().__init__()
-        self.functions = {"simple_sum": self.simple_sum, "distribute_uniformly": self.distribute_uniformly, "distribute_by_area": self.distribute_by_area}
-        self.default_aggregator = self.simple_sum
-        self.default_disaggregator = self.distribute_by_area
+        self.functions = {"simple_sum": self.simple_sum, "simple_average": self.simple_average, "weighted_average": self.weighted_average, "distribute_uniformly": self.distribute_uniformly, "distribute_by_area": self.distribute_by_area, "distribute_identically": self.distribute_identically}
         if filename:
             with open(filename, mode='r') as json_file:
                 data = json.load(json_file)
             for node in data['nodes']:
                 self.add_node(node['id'], name=node.get('name'), type=node.get('type'), shape=node.get('shape'), area=node.get('area'))
             for edge in data['links']:
-                self.add_edge(edge['source'], edge['target'], a=edge.get('a'), d=edge.get('d'))
+                self.add_edge(edge['source'], edge['target'])
 
-    def simple_sum(self, values):
+    def simple_sum(self, values, *args):
         """
         aggregator for an instance graph
         :param values: a list of values
         :return: a scalar value, the summation of the values
         """
-        return sum(values)
+        return sum([value[1] for value in values])
+
+    def simple_average(self, values, *args):
+        """
+        aggregator for an instance graph
+        :param values: a list of values
+        :return: a scalar value, the average of the values
+        """
+        return sum([value[1] for value in values]) / len(values)
+
+    def weighted_average(self, values, parent_granularity, *args):
+        """
+        aggregator for an instance graph
+        :param values: a list of values
+        :return: a scalar value, the area-weighted average of the values
+        """
+        ancestors = nx.ancestors(self, values[0][0])
+        for ancestor in ancestors:
+            if self.nodes[ancestor]['type'] == parent_granularity:
+                parent_area = self.nodes[ancestor]['area']
+                break
+
+        return sum([value[1] * self.nodes[value[0]]['area'] for value in values]) / parent_area
 
     def distribute_uniformly(self, value, instance, child_granularity):
         """
         disaggregator for an instance graph
-        :param value:
-        :param instance:
-        :param child_granularity: the intended granularity of the transformation. the child node of the instance in the abstract graph
-        :return:
+        :param value: the value of the parent node
+        :param instance: the parent node to disaggregate
+        :param child_granularity: the intended granularity of the transformation (the child node of the instance in the abstract graph)
+        :return: a dict mapping each child node to its equal share of the parent value
         """
-        if instance not in self.nodes:
-            logging.critical("instance {} not in instance graph".format(instance))
-            return {}
         children = [child for child in self.successors(instance) if self.nodes[child]['type'] == child_granularity]
-        mean = value / len(children)
+        mean = value / len(children) if children else 0
         distributed = {child: mean for child in children}
+        return distributed
+
+    def distribute_identically(self, value, instance, child_granularity):
+        """
+        disaggregator for an instance graph
+        :param value: the value of the parent node
+        :param instance: the parent node to disaggregate
+        :param child_granularity: the intended granularity of the transformation (the child node of the instance in the abstract graph)
+        :return: a dict mapping each child node to the parent value
+        """
+        children = [child for child in self.successors(instance) if self.nodes[child]['type'] == child_granularity]
+        distributed = {child: value for child in children}
         return distributed
 
     def distribute_by_area(self, value, instance, child_granularity):
         """
         disaggregator for an instance graph
-        :param value:
-        :param instance:
-        :param child_granularity: the intended granularity of the transformation. the child node of the instance in the abstract graph
-        :return:
+        :param value: the value of the parent node
+        :param instance: the parent node to disaggregate
+        :param child_granularity: the intended granularity of the transformation (the child node of the instance in the abstract graph)
+        :return: a dict mapping ecah child node to its area-proportionate share of the parent value
         """
-        if instance not in self.nodes:
-            logging.critical("instance {} not in instance graph".format(instance))
-            return {}
         children = [child for child in self.successors(instance) if self.nodes[child]['type'] == child_granularity]
         parent_area = self.nodes[instance]["area"]
         distributed = {child: value * self.nodes[child]["area"] / parent_area for child in children}
@@ -121,33 +147,31 @@ class OuterWrapper(ABC):
         sort = sorted((a, b))
         return "{}^{}".format(sort[0], sort[1])
 
-    def aggregate(self, data, src, dest, variable):
+    def aggregate(self, data, src, dest, agg_name="simple_sum"):
         if src == dest:
             return data
         path = nx.shortest_path(self.abstract_graph, dest, src)
         path.reverse()
-        logging.info(path)
         if path:
             assert path[0] == src
             assert path[-1] == dest
             parents = defaultdict(list)
             for instance, value in data.items():
                 if instance not in self.instance_graph.nodes:
-                    logging.critical("instance {} not in instance graph".format(instance))
+                    logging.warning("instance {} not in instance graph".format(instance))
                     continue
                 parent = [parent for parent in self.instance_graph.predecessors(instance) if self.instance_graph.nodes[parent]['type'] == path[1]]
                 assert len(parent) == 1
                 parents[parent[0]].append((instance, value))
             translated = {}
             for instance, values, in parents.items():
-                trans_func_name = self.abstract_graph[path[1]][path[0]]['a'].get(variable)
-                trans_func = self.instance_graph.functions.get(trans_func_name, self.instance_graph.default_aggregator)
-                translated[instance] = trans_func([value[1] for value in values])
-            return self.aggregate(translated, path[1], dest, variable)
+                trans_func = self.instance_graph.functions.get(agg_name)
+                translated[instance] = trans_func(values)
+            return self.aggregate(translated, path[1], dest, agg_name)
         else:
             raise Exception("aggregation error")
 
-    def disaggregate(self, data, src, dest, variable):
+    def disaggregate(self, data, src, dest, disagg_name="distribute_by_area"):
         if src == dest:
             return data
         path = nx.shortest_path(self.abstract_graph, src, dest)
@@ -156,15 +180,17 @@ class OuterWrapper(ABC):
             assert path[-1] == dest
             translated = {}
             for instance, value in data.items():
-                trans_func_name = self.abstract_graph[path[0]][path[1]]['d'].get(variable)
-                trans_func = self.instance_graph.functions.get(trans_func_name, self.instance_graph.default_disaggregator)
-                tmp = trans_func(value, instance, path[1])
-                translated = {**translated, **tmp}
-            return self.disaggregate(translated, path[1], dest, variable)
+                trans_func = self.instance_graph.functions.get(disagg_name)
+                if instance not in self.instance_graph.nodes:
+                    logging.warning("instance {} not in instance graph".format(instance))
+                else:
+                    tmp = trans_func(value, instance, path[1])
+                    translated = {**translated, **tmp}
+            return self.disaggregate(translated, path[1], dest, disagg_name)
         else:
             raise Exception("disaggregation error")
 
-    def translate(self, data, src, dest, variable):
+    def translate(self, data, src, dest, variable, agg_name=None, disagg_name=None):
         """
 
         :param data: dictionary mapping instances to their values
@@ -172,23 +198,29 @@ class OuterWrapper(ABC):
         :param dest: granularity to translate the data to (the abstract graph must have a node with the same name)
         :return: dictionary mapping new instances to their values
         """
+
+        if not agg_name:
+            agg_name = "simple_sum"
+        if not disagg_name:
+            disagg_name = "distribute_by_area"
+
         if src == dest:
             return data
 
         elif nx.has_path(self.abstract_graph, src, dest):
-            return self.disaggregate(data, src, dest, variable)
+            return self.disaggregate(data, src, dest, disagg_name)
 
         elif nx.has_path(self.abstract_graph, dest, src):
-            return self.aggregate(data, src, dest, variable)
+            return self.aggregate(data, src, dest, agg_name)
 
         elif nx.has_path(self.abstract_graph, src, self.meet(src, dest)) and nx.has_path(self.abstract_graph, dest, self.meet(src, dest)):
-            disaggregated = self.disaggregate(data, src, self.meet(src, dest), variable)
-            aggregated = self.aggregate(disaggregated, self.meet(src, dest), dest, variable)
+            disaggregated = self.disaggregate(data, src, self.meet(src, dest), disagg_name)
+            aggregated = self.aggregate(disaggregated, self.meet(src, dest), dest, agg_name)
             return aggregated
 
         else:
-            logging.critical("error translating {} from {} to {}".format(variable, src, dest))
-            raise Exception("error translating {} from {} to {}".format(variable, src, dest))
+            logging.critical("error translating {} from {} to {}, no path found".format(variable, src, dest))
+            raise Exception("error translating {} from {} to {}, no path found".format(variable, src, dest))
 
     def load_json_objects(self, dir_path):
         """

@@ -5,7 +5,9 @@
       "type": "object",
       "properties":{
               "data": {"type": "object"},
-              "granularity": {"type": "string"}
+              "agg": {"type": "string", "value": "simple_sum"},
+              "disagg": {"type": "string", "value": "distribute_identically"},
+              "granularity": {"type": "string", "value": "county"}
       }
     }
   },
