@@ -121,7 +121,6 @@ class OuterWrapper(ABC):
 
         self.abstract_graph = Graph("/abstract-graph.geojson")
         self.instance_graph = Graph("/instance-graph.geojson")
-        self.instance_graph.nodes['UnitedStates']['area'] = 8081900
 
         self.input_schemas = None
         self.output_schemas = None
