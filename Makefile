@@ -8,9 +8,6 @@ up:
 
 all: build-model up
 
-copy:
-	bash download_files.sh
-
 down:
 	cd build && docker-compose down
 

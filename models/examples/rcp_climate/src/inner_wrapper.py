@@ -26,7 +26,7 @@ class InnerWrapper(OuterWrapper):
         self.global_temp, self.climate_data = temp_inc(self.raw_data, self.incstep)
 
         results = {'rcp_climate': {'global_temp': {'data': {'temp': self.global_temp}, 'granularity': 'global'}, 'rcp': {'data': self.climate_data, 'granularity': 'climate'}}}
-        return results, {}, {}
+        return results
 
 
 def main():

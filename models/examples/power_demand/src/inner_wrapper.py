@@ -28,7 +28,7 @@ class InnerWrapper(OuterWrapper):
         results = {'power_demand': {'power_demand': {'data': demand, 'granularity': 'county'}}} #obviously this will all say water demand isntead of power demand 
 #checks to see if it has data on population, writes it to selfpop and outputs power demand
     #does not use self because it doesnt use its own previous data 
-        return results, {}, {}
+        return results
 
 def main():
     wrapper = InnerWrapper()

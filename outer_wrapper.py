@@ -16,7 +16,6 @@ import sys
 import logging
 import networkx as nx
 from collections import defaultdict
-import base64
 
 
 class Graph(nx.DiGraph):
@@ -330,7 +329,7 @@ class OuterWrapper(ABC):
         # call the inner wrapper
         schemas = self.validated_schemas.copy()
         self.validated_schemas.clear()
-        results, htmls, images = self.increment(**schemas)
+        results = self.increment(**schemas)
 
         # validate against output schemas
         for schema_name, data_msg in results.items():
@@ -357,24 +356,6 @@ class OuterWrapper(ABC):
             data_msg['incstep'] = self.incstep
             data_msg['year'] = self.incstep + self.initial_year
             self.pub_queue.put(data_msg)
-        for filename, html in htmls.items():
-            file_msg = {}
-            file_msg['name'] = filename
-            file_msg['payload'] = html
-            file_msg['signal'] = 'file_string'
-            file_msg['source'] = self.model_id
-            file_msg['incstep'] = self.incstep
-            file_msg['year'] = self.incstep + self.initial_year
-            self.pub_queue.put(file_msg)
-        for filename, image in images.items():
-            file_msg = {}
-            file_msg['name'] = filename
-            file_msg['payload'] = base64.b64encode(image)
-            file_msg['signal'] = 'file_bytes'
-            file_msg['source'] = self.model_id
-            file_msg['incstep'] = self.incstep
-            file_msg['year'] = self.incstep + self.initial_year
-            self.pub_queue.put(file_msg)
         logging.info(f"finished increment {self.incstep}, year {self.incstep + self.initial_year}")
         self.incstep += 1
 
@@ -452,11 +433,6 @@ class OuterWrapper(ABC):
 
             # send status messages
             if message.get('signal') == 'status':
-                sock.send_json(message)
-                continue
-
-            # send files
-            if message.get('signal').startswith('file'):
                 sock.send_json(message)
                 continue
 

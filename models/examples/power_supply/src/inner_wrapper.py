@@ -27,7 +27,7 @@ class InnerWrapper(OuterWrapper):
 
         results = {'power_output': { 'co2': {'data': emissions, 'granularity': 'county'},
                 'thermo_water': {'data': water, 'granularity': 'county'}}}
-        return results, {}, {}
+        return results
 
 def main():
     wrapper = InnerWrapper()

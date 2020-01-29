@@ -25,7 +25,7 @@ class InnerWrapper(OuterWrapper):
         demand = Water_Demand_Simulation(self.countypop, self.rate)
 
         results = {'water_demand': {'water_demand': {'data': demand, 'granularity': 'county'}}}
-        return results, {}, {}
+        return results
 
 
 def main():

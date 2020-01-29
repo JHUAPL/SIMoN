@@ -4,7 +4,6 @@ import json
 from threading import Thread, Event
 from queue import Queue, Empty
 import pymongo
-import gridfs
 import sys
 import logging
 
@@ -50,24 +49,13 @@ class Broker:
             return False
 
         metadata_db = self.client[self.broker_id]
-        files_db = self.client["files"]
-        fs = gridfs.GridFS(files_db)
         while not event.is_set():
             try:
                 message = self.mongo_queue.get(timeout=0.1)
                 collection = message[0]
-                if collection == "files":
-                    payload = message[1]
-                    if payload['signal'] == 'file_string':
-                        data = payload['payload'].encode()
-                        fs.put(data, filename=payload['name'], incstep=payload['incstep'], year=payload['incstep'] + self.initial_year, source=payload['source'])
-                    elif payload['signal'] == 'file_bytes':
-                        data = payload['payload'].decode('base64')
-                        fs.put(data, filename=payload['name'], incstep=payload['incstep'], year=payload['incstep'] + self.initial_year, source=payload['source'])
-                else:
-                    messages_col = metadata_db[collection]
-                    payload = message[1]
-                    messages_col.insert_one(payload)
+                messages_col = metadata_db[collection]
+                payload = message[1]
+                messages_col.insert_one(payload)
             except Empty:
                 continue
 
@@ -136,8 +124,6 @@ class Broker:
                 self.model_tracker.add(message.get('source'))
             if message.get('signal') == 'data':
                 self.mongo_queue.put(('sub', message))
-            if message.get('signal').startswith('file'):
-                self.mongo_queue.put(('files', message))
 
         sock.close()
         context.term()
