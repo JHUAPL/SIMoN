@@ -1,3 +1,8 @@
+#!/usr/bin/env python
+
+# COPYRIGHT NOTICE
+# (c) 2020 The Johns Hopkins University / Applied Physics Laboratory LLC.  All Rights Reserved.
+
 import zmq
 import json
 from jsonschema import validate, ValidationError
@@ -16,44 +21,61 @@ import base64
 
 class Graph(nx.DiGraph):
 
-    def __init__(self, filename=None):
+    def __init__(self, filename):
+        """
+        constructor for the granularity graph
+        builds a graph by loading it from a JSON file
+        :param filename: path to the JSON file
+        """
+
+        # call the networkx parent constructor
         super().__init__()
+
+        # map the translation function names to the functions
         self.functions = {"simple_sum": self.simple_sum, "simple_average": self.simple_average, "weighted_average": self.weighted_average, "distribute_uniformly": self.distribute_uniformly, "distribute_by_area": self.distribute_by_area, "distribute_identically": self.distribute_identically}
-        if filename:
-            with open(filename, mode='r') as json_file:
-                data = json.load(json_file)
-            for node in data['nodes']:
-                self.add_node(node['id'], name=node.get('name'), type=node.get('type'), shape=node.get('shape'), area=node.get('area'))
-            for edge in data['links']:
-                self.add_edge(edge['source'], edge['target'])
+
+        # build the graph by loading it from the JSON file
+        with open(filename, mode='r') as json_file:
+            data = json.load(json_file)
+        for node in data['nodes']:
+            self.add_node(node['id'], name=node.get('name'), type=node.get('type'), shape=node.get('shape'), area=node.get('area'))
+        for edge in data['links']:
+            self.add_edge(edge['source'], edge['target'])
 
     def simple_sum(self, values, *args):
         """
         aggregator for an instance graph
-        :param values: a list of values
-        :return: a scalar value, the summation of the values
+        :param values: a list of value tuples: (instance node name, node value)
+        :return: the sum of the values
         """
         return sum([value[1] for value in values])
 
     def simple_average(self, values, *args):
         """
         aggregator for an instance graph
-        :param values: a list of values
-        :return: a scalar value, the average of the values
+        :param values: a list of value tuples: (instance node name, node value)
+        :return: the mean of the values
         """
         return sum([value[1] for value in values]) / len(values)
 
     def weighted_average(self, values, parent_granularity, *args):
         """
         aggregator for an instance graph
-        :param values: a list of values
-        :return: a scalar value, the area-weighted average of the values
+        :param values: a list of value tuples: (instance node name, node value)
+        :return: the area-weighted mean of the values
         """
+
+        # get the parents of the first node (each node should have the same parents)
         ancestors = nx.ancestors(self, values[0][0])
+
+        # get the area of the parent instance node
         for ancestor in ancestors:
             if self.nodes[ancestor]['type'] == parent_granularity:
                 parent_area = self.nodes[ancestor]['area']
                 break
+        else:
+            logging.error(f"none of the nodes in {ancestors} have granularity {parent_granularity}")
+            parent_area = sum([self.nodes[value[0]]['area'] for value in values])
 
         return sum([value[1] * self.nodes[value[0]]['area'] for value in values]) / parent_area
 
@@ -121,11 +143,12 @@ class OuterWrapper(ABC):
 
         self.abstract_graph = Graph("/abstract-graph.geojson")
         self.instance_graph = Graph("/instance-graph.geojson")
+        self.default_agg = "simple_sum"
+        self.default_dagg = "distribute_by_area"
 
         self.input_schemas = None
         self.output_schemas = None
         self.validated_schemas = {}
-        self.initial_conditions = None
         self.generic_output_schema = '{' \
                                      '  "type": "object",' \
                                      '  "patternProperties": {' \
@@ -142,18 +165,27 @@ class OuterWrapper(ABC):
         logging.basicConfig(level=logging.DEBUG, stream=sys.stdout,
                             format='%(asctime)s - %(levelname)s - %(filename)s:%(funcName)s:%(lineno)d - %(message)s')
 
-    def meet(self, a, b, graph=None):
+    def meet(self, a, b):
         sort = sorted((a, b))
         return f"{sort[0]}^{sort[1]}"
 
-    def aggregate(self, data, src, dest, agg_name="simple_sum"):
+    def aggregate(self, data, src, dest, agg_name=None):
+
+        if not agg_name:
+            agg_name = self.default_agg
+
+        # no translation needed
         if src == dest:
             return data
+
+        # get path across the granularity graph
         path = nx.shortest_path(self.abstract_graph, dest, src)
         path.reverse()
         if path:
             assert path[0] == src
             assert path[-1] == dest
+
+            # group the instances by their parent
             parents = defaultdict(list)
             for instance, value in data.items():
                 if instance not in self.instance_graph.nodes:
@@ -162,63 +194,84 @@ class OuterWrapper(ABC):
                 parent = [parent for parent in self.instance_graph.predecessors(instance) if self.instance_graph.nodes[parent]['type'] == path[1]]
                 assert len(parent) == 1
                 parents[parent[0]].append((instance, value))
+
+            # aggregate each parent's child values
             translated = {}
-            for instance, values, in parents.items():
+            for instance, values in parents.items():
                 trans_func = self.instance_graph.functions.get(agg_name)
                 translated[instance] = trans_func(values)
+
+            # translate to the next granularity in the path
             return self.aggregate(translated, path[1], dest, agg_name)
         else:
-            raise Exception("aggregation error")
+            raise Exception(f"error aggregating from {src} to {dest}, no path found")
 
-    def disaggregate(self, data, src, dest, disagg_name="distribute_by_area"):
+    def disaggregate(self, data, src, dest, disagg_name=None):
+
+        if not disagg_name:
+            disagg_name = self.default_dagg
+
+        # no translation needed
         if src == dest:
             return data
+
+        # get path across the granularity graph
         path = nx.shortest_path(self.abstract_graph, src, dest)
         if path:
             assert path[0] == src
             assert path[-1] == dest
+
+            # iterate over each parent instance
             translated = {}
             for instance, value in data.items():
-                trans_func = self.instance_graph.functions.get(disagg_name)
                 if instance not in self.instance_graph.nodes:
                     logging.warning(f"instance {instance} not in instance graph")
                 else:
-                    tmp = trans_func(value, instance, path[1])
-                    translated = {**translated, **tmp}
+                    trans_func = self.instance_graph.functions.get(disagg_name)
+                    # for this parent, create a dict of child instances mapped to disaggregated values
+                    children = trans_func(value, instance, path[1])
+                    # add this parent's dict of children to the flat dict
+                    translated = {**translated, **children}
+ 
+            # translate to the next granularity in the path
             return self.disaggregate(translated, path[1], dest, disagg_name)
         else:
-            raise Exception("disaggregation error")
+            raise Exception(f"error disaggregating from {src} to {dest}, no path found")
 
     def translate(self, data, src, dest, variable, agg_name=None, disagg_name=None):
         """
 
-        :param data: dictionary mapping instances to their values
+        :param data: dictionary mapping instance nodes (of src granularity) to their values
         :param src: granularity of the data (the abstract graph must have a node with the same name)
         :param dest: granularity to translate the data to (the abstract graph must have a node with the same name)
-        :return: dictionary mapping new instances to their values
+        :return: dictionary mapping instance nodes (of dest granularity) to their values
         """
 
+        # default aggregator and disaggregator
         if not agg_name:
-            agg_name = "simple_sum"
+            agg_name = self.default_agg
         if not disagg_name:
-            disagg_name = "distribute_by_area"
+            disagg_name = self.default_dagg
 
+        # no translation necessary
         if src == dest:
             return data
 
+        # disaggregate straight down a branch of the granularity graph
         elif nx.has_path(self.abstract_graph, src, dest):
             return self.disaggregate(data, src, dest, disagg_name)
 
+        # aggregate straight up a branch of the granularity graph
         elif nx.has_path(self.abstract_graph, dest, src):
             return self.aggregate(data, src, dest, agg_name)
 
+        # translate between branches of the granularity graph: disaggregate down, then aggregate back up
         elif nx.has_path(self.abstract_graph, src, self.meet(src, dest)) and nx.has_path(self.abstract_graph, dest, self.meet(src, dest)):
             disaggregated = self.disaggregate(data, src, self.meet(src, dest), disagg_name)
             aggregated = self.aggregate(disaggregated, self.meet(src, dest), dest, agg_name)
             return aggregated
 
         else:
-            logging.critical(f"error translating {variable} from {src} to {dest}, no path found")
             raise Exception(f"error translating {variable} from {src} to {dest}, no path found")
 
     def load_json_objects(self, dir_path):
@@ -414,15 +467,24 @@ class OuterWrapper(ABC):
                     validate(message['payload'], schema)
                     logging.info(f"validated outgoing message: {message}")
                     matched.append(schema)
+
+                    # translate each data variable to output schema's granularity
                     for item in message['payload']:
+
+                        # get current granularity from the data message
                         src_gran = message['payload'][item]['granularity']
+
+                        # get granularity and translation functions from the schema
                         dest_gran = schema['properties'][item]['properties']['granularity'].get('value', src_gran)
                         agg = schema['properties'][item]['properties'].get('agg', {}).get('value')
                         dagg = schema['properties'][item]['properties'].get('dagg', {}).get('value')
+
+                        # translate the data and update the data message
                         logging.info(f"validating output: message from {name}, translating variable {item}, {src_gran} -> {dest_gran}")
                         data = self.translate(message['payload'][item]['data'], src_gran, dest_gran, item, agg_name=agg, disagg_name=dagg)
                         message['payload'][item]['data'] = data
                         message['payload'][item]['granularity'] = dest_gran
+
                 except ValidationError:
                     logging.info("validation error")
                 except json.JSONDecodeError:
@@ -485,6 +547,7 @@ class OuterWrapper(ABC):
                 (was validated by a schema already used since the last increment)
         """
 
+        # validate data messages
         matched = []
         for name, schema in self.input_schemas.items():
             try:
@@ -495,15 +558,24 @@ class OuterWrapper(ABC):
                     return False
                 else:
                     matched.append(schema)
+
+                    # translate each data variable to input schema's granularity
                     for item in message['payload']:
+
+                        # get current granularity from the data message
                         src_gran = message['payload'][item]['granularity']
+
+                        # get granularity and translation functions from the schema
                         dest_gran = schema['properties'][item]['properties']['granularity'].get('value', src_gran)
                         agg = schema['properties'][item]['properties'].get('agg', {}).get('value')
                         dagg = schema['properties'][item]['properties'].get('dagg', {}).get('value')
+
+                        # translate the data and update the data message
                         logging.info(f"validating input: message from {name}, translating variable {item}, {src_gran} -> {dest_gran}")
                         data = self.translate(message['payload'][item]['data'], src_gran, dest_gran, item, agg_name=agg, disagg_name=dagg)
                         message['payload'][item]['data'] = data
                         message['payload'][item]['granularity'] = dest_gran
+
                     self.validated_schemas[name] = message['payload']
             except ValidationError:
                 logging.info("validation error")
@@ -516,7 +588,6 @@ class OuterWrapper(ABC):
 
     def action_worker(self, event):
         """
-        move logic for parsing results and putting into pub_queue into self.increment_handler.
         gets messages from the action queue and performs the respective action. currently, just the increment action
         :param event: the shutdown event for managing threads
         :return: runs continuously until the shutdown event is set
@@ -564,24 +635,29 @@ class OuterWrapper(ABC):
         # initialize the model
         self.input_schemas = self.load_json_objects('/opt/schemas/input')
         self.output_schemas = self.load_json_objects('/opt/schemas/output')
-        self.initial_conditions = self.load_json_objects('/opt/config')
-        self.configure(**self.initial_conditions)
+        initial_conditions = self.load_json_objects('/opt/config')
+        self.configure(**initial_conditions)
 
         # start the threads
         shutdown = Event()
 
+        # listen for messages
         subscribe_thread = Thread(target=self.sub, args=(shutdown,))
         subscribe_thread.start()
 
+        # publish messages
         publish_thread = Thread(target=self.pub, args=(shutdown,))
         publish_thread.start()
 
+        # handle increments
         action_thread = Thread(target=self.action_worker, args=(shutdown,))
         action_thread.start()
 
+        # check connectivity to broker
         watchdog_thread = Thread(target=self.watchdog, args=(shutdown,))
         watchdog_thread.start()
 
+        # submit updated status to the publish queue
         status_thread = Thread(target=self.send_status, args=(shutdown,))
         status_thread.start()
 
