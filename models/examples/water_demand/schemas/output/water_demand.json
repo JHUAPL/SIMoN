@@ -5,8 +5,6 @@
       "type": "object",
       "properties":{
               "data": {"type": "object"},
-              "agg": {"type": "string", "value": "simple_sum"},
-              "disagg": {"type": "string", "value": "distribute_uniformly"},
               "granularity": {"type": "string", "value": "state"}
       }
     }

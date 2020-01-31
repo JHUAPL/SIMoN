@@ -5,8 +5,7 @@
       "type": "object",
       "properties":{
               "data": {"type": "object"},
-              "dagg": {"type": "string", "value": "distribute_by_area"},
-              "granularity": {"type": "string", "value": "state"}
+              "granularity": {"type": "string", "value": "HUC8"}
       }
     },
     "global_temp": {
