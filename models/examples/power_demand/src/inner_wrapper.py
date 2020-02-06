@@ -11,12 +11,12 @@ class InnerWrapper(OuterWrapper):
         super().__init__(model_id="power_demand", num_expected_inputs=num_input_schemas)
 
     def configure(self, **kwargs): #this would be the water consumption rate in here 
-        if 'state consumption per capita' in kwargs.keys(): #instead of state, do water 2015, the json we made
-            self.cons = kwargs['state consumption per capita'] #copy the file name 
+        if 'state_consumption_per_capita' in kwargs.keys(): #instead of state, do water 2015, the json we made
+            self.cons = kwargs['state_consumption_per_capita'] #copy the file name 
         else:
             print('State consumption data not found')
-        if '2016 populations' in kwargs.keys(): #instead of 2016 populations would put the name of the 2015 water consumption rate
-            self.pop = kwargs['2016 populations']
+        if '2016_populations' in kwargs.keys(): #instead of 2016 populations would put the name of the 2015 water consumption rate
+            self.pop = kwargs['2016_populations']
 
     def increment(self, **kwargs): #this is handling all the new data that is coming from other models, the whole function would be similar besides power instead of water
         if 'population' in kwargs.keys():
