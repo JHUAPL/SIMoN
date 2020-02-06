@@ -13,8 +13,8 @@ class InnerWrapper(OuterWrapper):
     def configure(self, **kwargs):
         if 'rates' in kwargs.keys():
             self.rate=kwargs['rates']
-        if '2016 populations' in kwargs.keys(): #instead of 2016 populations would put the name of the 2015 water consumption rate
-            self.countypop = kwargs['2016 populations']
+        if '2016_populations' in kwargs.keys(): #instead of 2016 populations would put the name of the 2015 water consumption rate
+            self.countypop = kwargs['2016_populations']
 #replace the populations with the 2015 water consumption rate
 #need to take out the extra variable 
     def increment(self, **kwargs):

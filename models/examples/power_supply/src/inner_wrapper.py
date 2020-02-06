@@ -15,8 +15,8 @@ class InnerWrapper(OuterWrapper):
             self.prof = kwargs['state_energy_profiles']
         else:
             print('State profile data not found')
-        if '2016 demand' in kwargs.keys():
-            self.dem = kwargs['2016 demand']
+        if '2016_demand' in kwargs.keys():
+            self.dem = kwargs['2016_demand']
 
     def increment(self, **kwargs):
         if 'power_demand' in kwargs.keys():
