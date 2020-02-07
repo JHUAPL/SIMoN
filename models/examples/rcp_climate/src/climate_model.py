@@ -10,7 +10,6 @@ import json
 
 def temp_inc(init_data, year):
     json1_data = init_data
-    year = year-1
     mean_glob_temps = []
     with open("/opt/src/weights.json") as f:
         weights = json.load(f)
@@ -24,12 +23,12 @@ def temp_inc(init_data, year):
             single_year_US[i] = {}
         for j in json1_data[i]:
             # Use two outputs, single global mean temperature and gridded climate data
-            mean_glob_temps.append(json1_data[i][j][year][2])
+            mean_glob_temps.append(json1_data[i][j][year][3])
 
             # Contiguous U.S bounded by (49 N, 122W), (24N 66W)
             if 50 >= float(i) >= 23 and -65 >= float(j) >= -130:
                 single_year_US[i][j] = (
-                    json1_data[i][j][year][0], json1_data[i][j][year][1], json1_data[i][j][year][2]-273.15
+                    json1_data[i][j][year][0], json1_data[i][j][year][1], json1_data[i][j][year][3]-273.15
                 )
 
     # Apply weights
