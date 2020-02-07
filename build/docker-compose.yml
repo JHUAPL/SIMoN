@@ -12,10 +12,10 @@ services:
                 volumes:
                         - ../models/examples/water_demand:/opt:ro
 
-        rcp_climate:
-                build: ../models/examples/rcp_climate/
+        gfdl_cm3:
+                build: ../models/examples/gfdl_cm3/
                 volumes:
-                        - ../models/examples/rcp_climate:/opt:ro
+                        - ../models/examples/gfdl_cm3:/opt:ro
 
         power_supply: 
                 build: ../models/examples/power_supply/
