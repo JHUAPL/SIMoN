@@ -1,7 +1,14 @@
 {
   "type": "object",
   "properties": {
-    "rcp": {
+    "precipitation": {
+      "type": "object",
+      "properties":{
+              "data": {"type": "object"},
+              "granularity": {"type": "string", "value": "HUC8"}
+      }
+    },
+    "evaporation": {
       "type": "object",
       "properties":{
               "data": {"type": "object"},
@@ -16,5 +23,5 @@
       }
     }
   },
-  "required": ["global_temp", "rcp"]
+  "required": ["global_temp", "precipitation", "evaporation"]
 }

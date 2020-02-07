@@ -14,18 +14,22 @@ class InnerWrapper(OuterWrapper):
     def configure(self, **kwargs):
         self.raw_data = kwargs['rcp26data']
         if 'rcp26data' in kwargs.keys():
-            self.mean_temp, self.climate_data = temp_inc(self.raw_data, self.incstep)
-        # elif 'rcp60data' in kwargs.keys():
-        #     self.data = temp_inc(kwargs['rcp60data'], self.incstep)
-        # elif 'rcp85data' in kwargs.keys():
-        #     self.data = temp_inc(kwargs['rcp85data'], self.incstep)
+            self.mean_temp, self.climate_data0, self.climate_data1 = temp_inc(self.raw_data, self.incstep)
         else:
             print('rcp data not found')
 
     def increment(self, **kwargs):
-        self.global_temp, self.climate_data = temp_inc(self.raw_data, self.incstep)
+        self.global_temp, self.precipitation, self.evaporation = temp_inc(self.raw_data, self.incstep)
 
-        results = {'gfdl_cm3': {'global_temp': {'data': {'temp': self.global_temp}, 'granularity': 'global'}, 'rcp': {'data': self.climate_data, 'granularity': 'climate'}}}
+        results ={'gfdl_cm3':
+                    {'global_temp':
+                        {'data': {'temp': self.global_temp}, 'granularity': 'global'},
+                    'precipitation':
+                        {'data': self.precipitation, 'granularity': 'climate'},
+                    'evaporation':
+                        {'data': self.evaporation, 'granularity': 'climate'}
+                    }
+                }
         return results
 
 
