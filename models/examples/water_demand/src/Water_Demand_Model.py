@@ -6,18 +6,14 @@ import json
 import pandas as pd
 
 
-def Water_Demand_Simulation(countypop,rate):
+def Water_Demand_Simulation(countypop, rate):
 
-    water={}
+    water = {}
     for i in rate.keys():
-      if i in countypop.keys():
-          water[i]= (countypop[i]*rate[i])
-      else:
-          water[i]=(0)
-    #with open('water_demand_2015.json', 'w') as file:
+        if i in countypop.keys():
+            water[i] = countypop[i] * rate[i]
+        else:
+            water[i] = 0
+    # with open('water_demand_2015.json', 'w') as file:
     #    file.write(json.dumps(data))
     return water
-
-
-
-

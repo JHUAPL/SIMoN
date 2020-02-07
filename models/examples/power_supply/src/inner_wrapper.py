@@ -1,14 +1,17 @@
 import glob
 import sys
+
 sys.path.append('/')
 from outer_wrapper import OuterWrapper
 from GenerationSimulation import gen_sim
 
-class InnerWrapper(OuterWrapper):
 
+class InnerWrapper(OuterWrapper):
     def __init__(self):
         num_input_schemas = len(glob.glob("/opt/schemas/input/*.json"))
-        super().__init__(model_id="power_supply", num_expected_inputs=num_input_schemas)
+        super().__init__(
+            model_id="power_supply", num_expected_inputs=num_input_schemas
+        )
 
     def configure(self, **kwargs):
         if 'state_energy_profiles' in kwargs.keys():
@@ -25,9 +28,14 @@ class InnerWrapper(OuterWrapper):
             print('input demand not found')
         emissions, water = gen_sim(self.dem, self.prof)
 
-        results = {'power_supply': { 'co2': {'data': emissions, 'granularity': 'county'},
-                'thermo_water': {'data': water, 'granularity': 'county'}}}
+        results = {
+            'power_supply': {
+                'co2': {'data': emissions, 'granularity': 'county'},
+                'thermo_water': {'data': water, 'granularity': 'county'},
+            }
+        }
         return results
+
 
 def main():
     wrapper = InnerWrapper()

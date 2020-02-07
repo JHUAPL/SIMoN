@@ -19,7 +19,6 @@ from collections import defaultdict
 
 
 class Graph(nx.DiGraph):
-
     def __init__(self, filename):
         """
         constructor for the granularity graph
@@ -31,13 +30,26 @@ class Graph(nx.DiGraph):
         super().__init__()
 
         # map the translation function names to the functions
-        self.functions = {"simple_sum": self.simple_sum, "simple_average": self.simple_average, "weighted_average": self.weighted_average, "distribute_uniformly": self.distribute_uniformly, "distribute_by_area": self.distribute_by_area, "distribute_identically": self.distribute_identically}
+        self.functions = {
+            "simple_sum": self.simple_sum,
+            "simple_average": self.simple_average,
+            "weighted_average": self.weighted_average,
+            "distribute_uniformly": self.distribute_uniformly,
+            "distribute_by_area": self.distribute_by_area,
+            "distribute_identically": self.distribute_identically,
+        }
 
         # build the graph by loading it from the JSON file
         with open(filename, mode='r') as json_file:
             data = json.load(json_file)
         for node in data['nodes']:
-            self.add_node(node['id'], name=node.get('name'), type=node.get('type'), shape=node.get('shape'), area=node.get('area'))
+            self.add_node(
+                node['id'],
+                name=node.get('name'),
+                type=node.get('type'),
+                shape=node.get('shape'),
+                area=node.get('area'),
+            )
         for edge in data['links']:
             self.add_edge(edge['source'], edge['target'])
 
@@ -73,10 +85,17 @@ class Graph(nx.DiGraph):
                 parent_area = self.nodes[ancestor]['area']
                 break
         else:
-            logging.error(f"none of the nodes in {ancestors} have granularity {parent_granularity}")
-            parent_area = sum([self.nodes[value[0]]['area'] for value in values])
+            logging.error(
+                f"none of the nodes in {ancestors} have granularity {parent_granularity}"
+            )
+            parent_area = sum(
+                [self.nodes[value[0]]['area'] for value in values]
+            )
 
-        return sum([value[1] * self.nodes[value[0]]['area'] for value in values]) / parent_area
+        return (
+            sum([value[1] * self.nodes[value[0]]['area'] for value in values])
+            / parent_area
+        )
 
     def distribute_uniformly(self, value, instance, child_granularity):
         """
@@ -86,7 +105,11 @@ class Graph(nx.DiGraph):
         :param child_granularity: the intended granularity of the transformation (the child node of the instance in the abstract graph)
         :return: a dict mapping each child node to its equal share of the parent value
         """
-        children = [child for child in self.successors(instance) if self.nodes[child]['type'] == child_granularity]
+        children = [
+            child
+            for child in self.successors(instance)
+            if self.nodes[child]['type'] == child_granularity
+        ]
         mean = value / len(children) if children else 0
         distributed = {child: mean for child in children}
         return distributed
@@ -99,7 +122,11 @@ class Graph(nx.DiGraph):
         :param child_granularity: the intended granularity of the transformation (the child node of the instance in the abstract graph)
         :return: a dict mapping each child node to the parent value
         """
-        children = [child for child in self.successors(instance) if self.nodes[child]['type'] == child_granularity]
+        children = [
+            child
+            for child in self.successors(instance)
+            if self.nodes[child]['type'] == child_granularity
+        ]
         distributed = {child: value for child in children}
         return distributed
 
@@ -111,14 +138,20 @@ class Graph(nx.DiGraph):
         :param child_granularity: the intended granularity of the transformation (the child node of the instance in the abstract graph)
         :return: a dict mapping ecah child node to its area-proportionate share of the parent value
         """
-        children = [child for child in self.successors(instance) if self.nodes[child]['type'] == child_granularity]
+        children = [
+            child
+            for child in self.successors(instance)
+            if self.nodes[child]['type'] == child_granularity
+        ]
         parent_area = self.nodes[instance]["area"]
-        distributed = {child: value * self.nodes[child]["area"] / parent_area for child in children}
+        distributed = {
+            child: value * self.nodes[child]["area"] / parent_area
+            for child in children
+        }
         return distributed
 
 
 class OuterWrapper(ABC):
-
     def __init__(self, model_id, num_expected_inputs):
         """
         constructor for the outer wrapper, an abstract base class inherited by the inner wrapper
@@ -148,21 +181,26 @@ class OuterWrapper(ABC):
         self.input_schemas = None
         self.output_schemas = None
         self.validated_schemas = {}
-        self.generic_output_schema = '{' \
-                                     '  "type": "object",' \
-                                     '  "patternProperties": {' \
-                                     '    ".*": {' \
-                                     '      "type": "object", ' \
-                                     '      "properties": {' \
-                                     '         "data": {"type": "object"}, "granularity": {"type": "string"}' \
-                                     '      },' \
-                                     '      "required": ["data", "granularity"]' \
-                                     '    }' \
-                                     '  }' \
-                                     '}'
+        self.generic_output_schema = (
+            '{'
+            '  "type": "object",'
+            '  "patternProperties": {'
+            '    ".*": {'
+            '      "type": "object", '
+            '      "properties": {'
+            '         "data": {"type": "object"}, "granularity": {"type": "string"}'
+            '      },'
+            '      "required": ["data", "granularity"]'
+            '    }'
+            '  }'
+            '}'
+        )
 
-        logging.basicConfig(level=logging.DEBUG, stream=sys.stdout,
-                            format='%(asctime)s - %(levelname)s - %(filename)s:%(funcName)s:%(lineno)d - %(message)s')
+        logging.basicConfig(
+            level=logging.DEBUG,
+            stream=sys.stdout,
+            format='%(asctime)s - %(levelname)s - %(filename)s:%(funcName)s:%(lineno)d - %(message)s',
+        )
 
     def meet(self, a, b):
         sort = sorted((a, b))
@@ -188,9 +226,15 @@ class OuterWrapper(ABC):
             parents = defaultdict(list)
             for instance, value in data.items():
                 if instance not in self.instance_graph.nodes:
-                    logging.warning(f"instance {instance} not in instance graph")
+                    logging.warning(
+                        f"instance {instance} not in instance graph"
+                    )
                     continue
-                parent = [parent for parent in self.instance_graph.predecessors(instance) if self.instance_graph.nodes[parent]['type'] == path[1]]
+                parent = [
+                    parent
+                    for parent in self.instance_graph.predecessors(instance)
+                    if self.instance_graph.nodes[parent]['type'] == path[1]
+                ]
                 assert len(parent) == 1
                 parents[parent[0]].append((instance, value))
 
@@ -203,7 +247,9 @@ class OuterWrapper(ABC):
             # translate to the next granularity in the path
             return self.aggregate(translated, path[1], dest, agg_name)
         else:
-            raise Exception(f"error aggregating from {src} to {dest}, no path found")
+            raise Exception(
+                f"error aggregating from {src} to {dest}, no path found"
+            )
 
     def disaggregate(self, data, src, dest, disagg_name=None):
 
@@ -224,20 +270,26 @@ class OuterWrapper(ABC):
             translated = {}
             for instance, value in data.items():
                 if instance not in self.instance_graph.nodes:
-                    logging.warning(f"instance {instance} not in instance graph")
+                    logging.warning(
+                        f"instance {instance} not in instance graph"
+                    )
                 else:
                     trans_func = self.instance_graph.functions.get(disagg_name)
                     # for this parent, create a dict of child instances mapped to disaggregated values
                     children = trans_func(value, instance, path[1])
                     # add this parent's dict of children to the flat dict
                     translated = {**translated, **children}
- 
+
             # translate to the next granularity in the path
             return self.disaggregate(translated, path[1], dest, disagg_name)
         else:
-            raise Exception(f"error disaggregating from {src} to {dest}, no path found")
+            raise Exception(
+                f"error disaggregating from {src} to {dest}, no path found"
+            )
 
-    def translate(self, data, src, dest, variable, agg_name=None, disagg_name=None):
+    def translate(
+        self, data, src, dest, variable, agg_name=None, disagg_name=None
+    ):
         """
 
         :param data: dictionary mapping instance nodes (of src granularity) to their values
@@ -265,13 +317,21 @@ class OuterWrapper(ABC):
             return self.aggregate(data, src, dest, agg_name)
 
         # translate between branches of the granularity graph: disaggregate down, then aggregate back up
-        elif nx.has_path(self.abstract_graph, src, self.meet(src, dest)) and nx.has_path(self.abstract_graph, dest, self.meet(src, dest)):
-            disaggregated = self.disaggregate(data, src, self.meet(src, dest), disagg_name)
-            aggregated = self.aggregate(disaggregated, self.meet(src, dest), dest, agg_name)
+        elif nx.has_path(
+            self.abstract_graph, src, self.meet(src, dest)
+        ) and nx.has_path(self.abstract_graph, dest, self.meet(src, dest)):
+            disaggregated = self.disaggregate(
+                data, src, self.meet(src, dest), disagg_name
+            )
+            aggregated = self.aggregate(
+                disaggregated, self.meet(src, dest), dest, agg_name
+            )
             return aggregated
 
         else:
-            raise Exception(f"error translating {variable} from {src} to {dest}, no path found")
+            raise Exception(
+                f"error translating {variable} from {src} to {dest}, no path found"
+            )
 
     def load_json_objects(self, dir_path):
         """
@@ -296,7 +356,9 @@ class OuterWrapper(ABC):
         :return:
         """
 
-        raise NotImplementedError(f"configure() has to be implemented in the {self.model_id} inner wrapper")
+        raise NotImplementedError(
+            f"configure() has to be implemented in the {self.model_id} inner wrapper"
+        )
 
     @abstractmethod
     def increment(self, **kwargs):
@@ -306,7 +368,9 @@ class OuterWrapper(ABC):
         :return:
         """
 
-        raise NotImplementedError(f"increment() has to be implemented in the {self.model_id} inner wrapper")
+        raise NotImplementedError(
+            f"increment() has to be implemented in the {self.model_id} inner wrapper"
+        )
 
     def increment_handler(self, event, incstep):
         """
@@ -317,12 +381,19 @@ class OuterWrapper(ABC):
         """
 
         self.increment_flag = True
-        logging.info(f"about to increment, incstep {incstep}, year {self.initial_year + incstep}")
+        logging.info(
+            f"about to increment, incstep {incstep}, year {self.initial_year + incstep}"
+        )
         self.incstep = incstep
 
         # validate against input schemas
-        if incstep > 1 and len(self.validated_schemas) != self.num_expected_inputs:
-            logging.critical(f"number of validated schemas {len(self.validated_schemas)} != num_expected_inputs {self.num_expected_inputs}")
+        if (
+            incstep > 1
+            and len(self.validated_schemas) != self.num_expected_inputs
+        ):
+            logging.critical(
+                f"number of validated schemas {len(self.validated_schemas)} != num_expected_inputs {self.num_expected_inputs}"
+            )
             event.set()
             raise RuntimeError
 
@@ -337,7 +408,9 @@ class OuterWrapper(ABC):
                 validate(data_msg, json.loads(self.generic_output_schema))
                 validate(data_msg, self.output_schemas[schema_name])
             except Exception as e:
-                logging.critical(f"message {data_msg} failed to validate schema {schema_name}")
+                logging.critical(
+                    f"message {data_msg} failed to validate schema {schema_name}"
+                )
                 event.set()
                 raise RuntimeError
 
@@ -356,7 +429,9 @@ class OuterWrapper(ABC):
             data_msg['incstep'] = self.incstep
             data_msg['year'] = self.incstep + self.initial_year
             self.pub_queue.put(data_msg)
-        logging.info(f"finished increment {self.incstep}, year {self.incstep + self.initial_year}")
+        logging.info(
+            f"finished increment {self.incstep}, year {self.incstep + self.initial_year}"
+        )
         self.incstep += 1
 
     def send_status(self, event):
@@ -386,7 +461,9 @@ class OuterWrapper(ABC):
                         # kickstart the model for the first increment
                         self.status = 'ready'
 
-                    elif len(self.validated_schemas) == self.num_expected_inputs:
+                    elif (
+                        len(self.validated_schemas) == self.num_expected_inputs
+                    ):
                         # all input messages have been received and all input schemas have been validated
                         self.status = 'ready'
 
@@ -451,13 +528,32 @@ class OuterWrapper(ABC):
                         src_gran = message['payload'][item]['granularity']
 
                         # get granularity and translation functions from the schema
-                        dest_gran = schema['properties'][item]['properties']['granularity'].get('value', src_gran)
-                        agg = schema['properties'][item]['properties'].get('agg', {}).get('value')
-                        dagg = schema['properties'][item]['properties'].get('dagg', {}).get('value')
+                        dest_gran = schema['properties'][item]['properties'][
+                            'granularity'
+                        ].get('value', src_gran)
+                        agg = (
+                            schema['properties'][item]['properties']
+                            .get('agg', {})
+                            .get('value')
+                        )
+                        dagg = (
+                            schema['properties'][item]['properties']
+                            .get('dagg', {})
+                            .get('value')
+                        )
 
                         # translate the data and update the data message
-                        logging.info(f"validating output: message from {name}, translating variable {item}, {src_gran} -> {dest_gran}")
-                        data = self.translate(message['payload'][item]['data'], src_gran, dest_gran, item, agg_name=agg, disagg_name=dagg)
+                        logging.info(
+                            f"validating output: message from {name}, translating variable {item}, {src_gran} -> {dest_gran}"
+                        )
+                        data = self.translate(
+                            message['payload'][item]['data'],
+                            src_gran,
+                            dest_gran,
+                            item,
+                            agg_name=agg,
+                            disagg_name=dagg,
+                        )
                         message['payload'][item]['data'] = data
                         message['payload'][item]['granularity'] = dest_gran
 
@@ -466,12 +562,18 @@ class OuterWrapper(ABC):
                 except json.JSONDecodeError:
                     logging.warning("json decode error")
             if len(matched) == 0:
-                logging.info(f"message didn't match any output schemas: {message['source']}")
+                logging.info(
+                    f"message didn't match any output schemas: {message['source']}"
+                )
             elif len(matched) == 1:
-                logging.info(f"message matched an output schema: {message['source']}")
+                logging.info(
+                    f"message matched an output schema: {message['source']}"
+                )
                 sock.send_json(message)
             else:
-                logging.critical(f"more than one output schema was matched: {message['source']}")
+                logging.critical(
+                    f"more than one output schema was matched: {message['source']}"
+                )
                 event.set()
 
         sock.close()
@@ -528,9 +630,13 @@ class OuterWrapper(ABC):
         for name, schema in self.input_schemas.items():
             try:
                 validate(message['payload'], schema)
-                logging.info(f"schema {name} validated incoming message: {message}")
+                logging.info(
+                    f"schema {name} validated incoming message: {message}"
+                )
                 if name in self.validated_schemas:
-                    logging.error(f"schema {name} already validated a message: {message}")
+                    logging.error(
+                        f"schema {name} already validated a message: {message}"
+                    )
                     return False
                 else:
                     matched.append(schema)
@@ -542,13 +648,32 @@ class OuterWrapper(ABC):
                         src_gran = message['payload'][item]['granularity']
 
                         # get granularity and translation functions from the schema
-                        dest_gran = schema['properties'][item]['properties']['granularity'].get('value', src_gran)
-                        agg = schema['properties'][item]['properties'].get('agg', {}).get('value')
-                        dagg = schema['properties'][item]['properties'].get('dagg', {}).get('value')
+                        dest_gran = schema['properties'][item]['properties'][
+                            'granularity'
+                        ].get('value', src_gran)
+                        agg = (
+                            schema['properties'][item]['properties']
+                            .get('agg', {})
+                            .get('value')
+                        )
+                        dagg = (
+                            schema['properties'][item]['properties']
+                            .get('dagg', {})
+                            .get('value')
+                        )
 
                         # translate the data and update the data message
-                        logging.info(f"validating input: message from {name}, translating variable {item}, {src_gran} -> {dest_gran}")
-                        data = self.translate(message['payload'][item]['data'], src_gran, dest_gran, item, agg_name=agg, disagg_name=dagg)
+                        logging.info(
+                            f"validating input: message from {name}, translating variable {item}, {src_gran} -> {dest_gran}"
+                        )
+                        data = self.translate(
+                            message['payload'][item]['data'],
+                            src_gran,
+                            dest_gran,
+                            item,
+                            agg_name=agg,
+                            disagg_name=dagg,
+                        )
                         message['payload'][item]['data'] = data
                         message['payload'][item]['granularity'] = dest_gran
 
@@ -559,7 +684,9 @@ class OuterWrapper(ABC):
                 logging.warning("json decode error")
 
         if len(matched) == 0:
-            logging.info(f"message didn't match any input schemas: {message['source']}")
+            logging.info(
+                f"message didn't match any input schemas: {message['source']}"
+            )
         return True
 
     def action_worker(self, event):
