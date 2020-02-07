@@ -4,6 +4,6 @@
 	"power_supply",
 	"power_demand",
         "water_demand",
-	"rcp_climate"
+	"gfdl_cm3"
     ]
 }

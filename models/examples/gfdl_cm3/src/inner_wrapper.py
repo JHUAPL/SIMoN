@@ -9,7 +9,7 @@ class InnerWrapper(OuterWrapper):
 
     def __init__(self):
         num_input_schemas = len(glob.glob("/opt/schemas/input/*.json"))
-        super().__init__(model_id="rcp_climate", num_expected_inputs=num_input_schemas)
+        super().__init__(model_id="gfdl_cm3", num_expected_inputs=num_input_schemas)
 
     def configure(self, **kwargs):
         self.raw_data = kwargs['rcp26data']
@@ -25,7 +25,7 @@ class InnerWrapper(OuterWrapper):
     def increment(self, **kwargs):
         self.global_temp, self.climate_data = temp_inc(self.raw_data, self.incstep)
 
-        results = {'rcp_climate': {'global_temp': {'data': {'temp': self.global_temp}, 'granularity': 'global'}, 'rcp': {'data': self.climate_data, 'granularity': 'climate'}}}
+        results = {'gfdl_cm3': {'global_temp': {'data': {'temp': self.global_temp}, 'granularity': 'global'}, 'rcp': {'data': self.climate_data, 'granularity': 'climate'}}}
         return results
 
 
