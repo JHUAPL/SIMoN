@@ -14,7 +14,7 @@ class InnerWrapper(OuterWrapper):
     def configure(self, **kwargs):
         self.raw_data = kwargs['rcp26data']
         if 'rcp26data' in kwargs.keys():
-            self.mean_temp, self.climate_data0, self.climate_data1 = temp_inc(self.raw_data, self.incstep)
+            self.global_temp, self.precipitation, self.evaporation = temp_inc(self.raw_data, self.incstep)
         else:
             print('rcp data not found')
 
@@ -25,9 +25,9 @@ class InnerWrapper(OuterWrapper):
                     {'global_temp':
                         {'data': {'temp': self.global_temp}, 'granularity': 'global'},
                     'precipitation':
-                        {'data': self.precipitation, 'granularity': 'climate'},
+                        {'data': self.precipitation, 'granularity': 'latlon'},
                     'evaporation':
-                        {'data': self.evaporation, 'granularity': 'climate'}
+                        {'data': self.evaporation, 'granularity': 'latlon'}
                     }
                 }
         return results
