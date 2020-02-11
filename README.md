@@ -45,6 +45,7 @@ You can retrieve documents using the standard Mongo tools, such as the Mongo she
 Once you've retrieved a document and saved it as a JSON file, you can plot the data on a choropleth map using the Python script in the `viz` directory.
 ```
 python viz/plot.py mongo_data.json
+```
 
 ## Add a new model
 1. In the models/ directory, copy the template/ directory and rename it to the ID (unique name) of your new model.
