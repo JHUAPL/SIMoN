@@ -9,7 +9,6 @@ import logging
 
 
 class Broker:
-
     def __init__(self):
         """
         constructor for the broker
@@ -24,14 +23,17 @@ class Broker:
         self.incstep = 1
         self.max_incstep = 50
         self.initial_year = 2016
-        self.boot_timer = 60 # units: seconds
-        self.watchdog_timer = 60 # units: seconds
+        self.boot_timer = 60  # units: seconds
+        self.watchdog_timer = 60  # units: seconds
         self.client = None
         self.mongo_queue = Queue()
         self.broker_id = 'broker'
 
-        logging.basicConfig(level=logging.DEBUG, stream=sys.stdout,
-                            format='%(asctime)s - %(levelname)s - %(filename)s:%(funcName)s:%(lineno)d - %(message)s')
+        logging.basicConfig(
+            level=logging.DEBUG,
+            stream=sys.stdout,
+            format='%(asctime)s - %(levelname)s - %(filename)s:%(funcName)s:%(lineno)d - %(message)s',
+        )
         logging.info(self.models)
 
     def insert_into_mongodb(self, event):
@@ -119,7 +121,10 @@ class Broker:
             except zmq.ZMQError:
                 continue
             logging.info(json.dumps(message))
-            if message.get('source') in self.models and message.get('signal') == 'status':
+            if (
+                message.get('source') in self.models
+                and message.get('signal') == 'status'
+            ):
                 self.models[message.get('source')] = message
                 self.model_tracker.add(message.get('source'))
             if message.get('signal') == 'data':
@@ -173,7 +178,11 @@ class Broker:
         """
 
         while not event.is_set():
-            for i in range(self.boot_timer if self.status == 'booting' else self.watchdog_timer):
+            for i in range(
+                self.boot_timer
+                if self.status == 'booting'
+                else self.watchdog_timer
+            ):
                 time.sleep(1)
                 if self.model_tracker == set(self.models.keys()):
                     self.status = 'booted'
@@ -181,8 +190,12 @@ class Broker:
                     break
             else:
                 missing_models = set(self.models.keys()) - self.model_tracker
-                logging.critical(f"Timed out waiting for {missing_models}{' to initialize' if self.status == 'booting' else ''}")
-                logging.critical(f"Broker will shut down now, current time: {time.ctime()}")
+                logging.critical(
+                    f"Timed out waiting for {missing_models}{' to initialize' if self.status == 'booting' else ''}"
+                )
+                logging.critical(
+                    f"Broker will shut down now, current time: {time.ctime()}"
+                )
                 event.set()
 
     def send_increment_pulse(self, event):
@@ -198,12 +211,22 @@ class Broker:
 
             # check to send an increment pulse
             for model, status in self.models.items():
-                if status.get('status') != 'ready' or status.get('incstep') != self.incstep:
+                if (
+                    status.get('status') != 'ready'
+                    or status.get('incstep') != self.incstep
+                ):
                     break
             else:
-                if self.incstep > self.max_incstep and self.mongo_queue.empty():
-                    logging.critical(f"successfully finished last increment {self.max_incstep}")
-                    logging.critical(f"Broker will shut down now, current time: {time.ctime()}")
+                if (
+                    self.incstep > self.max_incstep
+                    and self.mongo_queue.empty()
+                ):
+                    logging.critical(
+                        f"successfully finished last increment {self.max_incstep}"
+                    )
+                    logging.critical(
+                        f"Broker will shut down now, current time: {time.ctime()}"
+                    )
                     event.set()
                 else:
                     logging.info(f"sending increment pulse {self.incstep}")
@@ -240,10 +263,14 @@ class Broker:
         watchdog_thread = Thread(target=self.watchdog, args=(shutdown,))
         watchdog_thread.start()
 
-        increment_pulse_thread = Thread(target=self.send_increment_pulse, args=(shutdown,))
+        increment_pulse_thread = Thread(
+            target=self.send_increment_pulse, args=(shutdown,)
+        )
         increment_pulse_thread.start()
 
-        mongo_thread = Thread(target=self.insert_into_mongodb, args=(shutdown,))
+        mongo_thread = Thread(
+            target=self.insert_into_mongodb, args=(shutdown,)
+        )
         mongo_thread.start()
 
         try:
