@@ -24,12 +24,14 @@ def pop_sim(init_data):
     # of {county1_index: {2000: pop, 2001: pop, etc}, county2_index:...}
     # applies Holt linear trend method to predict one year ahead
     # outputted data is dict of {county_index: next_year_pop}
-    
+
     temp = {}
 
     for key, county in data.items():
         population = pd.Series(county)
-        fit1 = Holt(np.asarray(population)).fit(smoothing_level=0.7, smoothing_slope=0.3)
+        fit1 = Holt(np.asarray(population)).fit(
+            smoothing_level=0.7, smoothing_slope=0.3
+        )
         next_year = fit1.forecast(1)[0]
         temp[key] = next_year
         data[key][str(int(max(data[key].keys())) + 1)] = next_year
@@ -38,4 +40,3 @@ def pop_sim(init_data):
         file.write(json.dumps(data))
 
     return temp
-
