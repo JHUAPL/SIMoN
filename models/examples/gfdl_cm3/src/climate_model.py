@@ -43,15 +43,16 @@ def temp_inc(init_data, year):
     translated_ev = {}
     for lat, lat_values in single_year_US.items():
         for lon, lon_values in lat_values.items():
+            lat = float(lat)
             lon = float(lon)
             if lon < 0:
                 lon += 180
-            translated_pr["lat_" + str(lat) + "_lon_" + str(lon)] = lon_values[
-                0
-            ]
-            translated_ev["lat_" + str(lat) + "_lon_" + str(lon)] = lon_values[
-                1
-            ]
+            translated_pr[
+                f"lat_{int(lat*100)}_lon_{int(lon*100)}"
+            ] = lon_values[0]
+            translated_ev[
+                f"lat_{int(lat*100)}_lon_{int(lon*100)}"
+            ] = lon_values[1]
 
     return (
         weighted_sum - 273.15,
