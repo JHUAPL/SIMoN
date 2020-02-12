@@ -6,5 +6,5 @@ RUN apt-get install -y libzmq3-dev
 COPY ./build/requirements.txt /
 RUN pip3 install -r /requirements.txt
 COPY ./outer_wrapper.py /.
-COPY ./instance-graph.geojson /.
-COPY ./abstract-graph.geojson /.
+COPY ./graphs/instance-graph.geojson /.
+COPY ./graphs/abstract-graph.geojson /.
