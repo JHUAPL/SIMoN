@@ -5,14 +5,14 @@
       "type": "object",
       "properties":{
         "data": {"type": "object"},
-        "granularity": {"type": "string", "value": "county"}
+        "granularity": {"type": "string", "value": "nerc"}
       }
     },
     "thermo_water": {
       "type": "object",
       "properties":{
         "data": {"type": "object"},
-        "granularity": {"type": "string", "value": "HUC8"}
+        "granularity": {"type": "string", "value": "nerc"}
       }
     }
   },
