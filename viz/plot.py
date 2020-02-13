@@ -116,6 +116,7 @@ def plot_mongo_doc(data, projection=4326, save_fig=True, show_fig=True):
         granularity = data['payload'][dataset]['granularity']
         print(f"dataset: {dataset}, granularity: {granularity}")
         instance_col_name = 'ID'
+        year = data['year']
 
         df[dataset] = pd.DataFrame.from_dict(
             data['payload'][dataset]['data'],
@@ -156,7 +157,7 @@ def plot_mongo_doc(data, projection=4326, save_fig=True, show_fig=True):
             else ("(x, y)", "($x, $y)")
         )
         fig = figure(
-            title=f"USA {dataset}",
+            title=f"USA {dataset} ({year})",
             tools=TOOLS,
             plot_width=plot_width,
             plot_height=plot_height,
@@ -178,7 +179,7 @@ def plot_mongo_doc(data, projection=4326, save_fig=True, show_fig=True):
         )
 
         if save_fig:
-            output_file(f"{dataset}.html")
+            output_file(f"{year}_{dataset}.html")
             save(fig)
         if show_fig:
             show(fig)
