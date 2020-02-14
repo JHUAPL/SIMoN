@@ -5,6 +5,7 @@
 
 # import packages
 import sys
+import os
 import numpy as np
 from geopandas import read_file
 import pandas as pd
@@ -125,9 +126,12 @@ def plot_mongo_doc(data, projection=4326, save_fig=True, show_fig=True):
         )
         df[dataset][instance_col_name] = df[dataset].index
 
-        geographies[dataset] = read_file(
-            f"{shapefile_dir}/simple1000_clipped_{granularity}.shp"
-        ).to_crs(epsg=projection)
+        shapefile_path = f"{shapefile_dir}/simple1000_clipped_{granularity}.shp"
+        if os.path.exists(shapefile_path):
+            geographies[dataset] = read_file(shapefile_path).to_crs(epsg=projection)
+        else:
+            print(f"{shapefile_path} not found, skipping")
+            continue
         geographies[dataset] = geographies[dataset].merge(
             df[dataset], on=instance_col_name
         )
