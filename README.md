@@ -22,6 +22,8 @@ Additionally, install `make`, so that the shell commands that operate SIMoN can 
 * install Docker Compose
 	* https://docs.docker.com/compose/install/
 
+Use Python 3.6 to run the graph construction and data visualization tools.
+
 ## Usage
 1.  Choose the models that you want to run together in the SIMoN framework. Note their interdependencies carefully, and make sure that each model has a source for all of its necessary data inputs. Sample models are provided in the `examples` directory, where each model has its own directory. You can also create a new model by using the `template` directory as a blueprint.
 2.  Once you have a complete set of models where all dependencies are satisfied, add the unique name of each of the models to the "models" list in `broker/config.json`.
@@ -44,7 +46,7 @@ You can retrieve documents using the standard Mongo tools, such as the Mongo she
 
 Once you've retrieved a document and saved it as a JSON file, you can plot the data on a choropleth map using the Python script in the `viz` directory.
 ```
-python viz/plot.py mongo_data.json
+python3.6 viz/plot.py mongo_data.json
 ```
 
 ## Add a new model
