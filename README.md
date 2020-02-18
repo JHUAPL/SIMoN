@@ -1,4 +1,5 @@
-## SIMoN
+
+# SIMoN
 System Integration with Multiscale Networks
 
 Copyright 2020 The Johns Hopkins University Applied Physics Laboratory
@@ -10,19 +11,26 @@ The SIMoN joint modeling framework integrates independently-designed predictive 
 
 In order to translate data from its models across different geographic granularities, SIMoN uses a network graph that represents all the granularities, their corresponding entities, and their relationships to each other. The individual models feed each other updated data inputs at synchronized time intervals, and traverse the network graph to translate their data from one granularity to another. A sample granularity graph is provided, but modelers can extend it or create a graph of their own, by modifying and using the `graphs/build.py` script.
 
-SIMoN is written in Python 3, and uses Docker to manage its models and their integration. Each model runs in its own separate, modular Docker container. An additional container runs the system’s centralized Broker, which receives each model’s data outputs using a PyZMQ publish-subscribe messaging pattern. The Broker then redirects the data to any models that request it. The models can then use this data as their inputs for the next incremental step in the system’s synchronized run.
+SIMoN is written in Python 3.6, and uses Docker to manage its models and their integration. Each model runs in its own separate, modular Docker container. An additional container runs the system’s centralized Broker, which receives each model’s data outputs using a PyZMQ publish-subscribe messaging pattern. The Broker then redirects the data to any models that request it. The models can then use this data as their inputs for the next incremental step in the system’s synchronized run.
+
+## Requirements
+
+ - Python 3.6
+ - Docker >= 18.09.6
+ - Docker Compose >= 1.23.2
 
 ## Setup
 SIMoN uses Docker and Compose to run its models in separate containers. To run SIMoN, clone the repo and install these tools.
+The Docker containers used for the models are built from Ubuntu 18.04 images, with the Python 3.6 and libzmq packages layered on top.
+The Docker container used for the database is a MongoDB image.
 
 Additionally, install `make`, so that the shell commands that operate SIMoN can be executed more easily using the Makefile.
 
 * install Docker
-	* https://docs.docker.com/install/
+        * https://docs.docker.com/install/
 * install Docker Compose
-	* https://docs.docker.com/compose/install/
+        * https://docs.docker.com/compose/install/
 
-Use Python 3.6 to run the graph construction and data visualization tools.
 
 ## Usage
 1.  Choose the models that you want to run together in the SIMoN framework. Note their interdependencies carefully, and make sure that each model has a source for all of its necessary data inputs. Sample models are provided in the `examples` directory, where each model has its own directory. You can also create a new model by using the `template` directory as a blueprint.
@@ -33,21 +41,41 @@ Use Python 3.6 to run the graph construction and data visualization tools.
         build: ../models/examples/model_name_1/
         volumes:
             - ../models/examples/model_name_1:/opt:ro
-4.  To start SIMoN:
-	* `make all`
-5.  To shut down SIMoN:
-	* `make down` to stop all models
-	* `make clean` to stop all models and clear the database
+4. Optionally, adjust the models' output schemas, in order to change the granularity of their output data. The recognized granularities (all lowercase) are:
+    * usa48
+    * state
+    * county
+    * nerc
+    * huc8
+    * latlon
+5. To start SIMoN:
+    * `make all`
+    * Use `docker logs broker -f` to track output from the broker container. The increment step "incstep" should increase over time as models publish their data, and the mongodb container should populate with documents (database: broker; collection: sub).
+    * Use `docker logs build_your_model_name_1 -f` to track output from the model named `your_model_name`.
+6.  To shut down SIMoN:
+    * `make down` to stop all models
+    * `make clean` to stop all models and clear the database
 
 ## Visualization
 SIMoN stores all of the data outputs from the models as documents in a Mongo database (container name `mongodb`, accessible via the default Mongo port 27017).
 
 You can retrieve documents using the standard Mongo tools, such as the Mongo shell or the Mongo Compass GUI application, and save them as JSON files.
 
+Using the command line:
+  * `$ MODEL_NAME=your_model_name`
+  * `$ YEAR=2035`
+  * `$ mongoexport --db broker --collection sub --limit 1
+      --query "{source: '$MODEL_NAME', year: $YEAR}"
+      --out $YEAR_$MODEL_NAME.json`
+
 Once you've retrieved a document and saved it as a JSON file, you can plot the data on a choropleth map using the Python script in the `viz` directory.
 ```
-python3.6 viz/plot.py mongo_data.json
+cd viz/
+python3.6 plot.py $YEAR_$MODEL_NAME.json
 ```
+A new HTML file will be created in the `viz` directory. Open this file in a web browser to display the Bokeh visualization.
+![evaporation](viz/demo/2035_evaporation.png)
+![precipitation](viz/demo/2035_precipitation.png)
 
 ## Add a new model
 1. In the models/ directory, copy the template/ directory and rename it to the ID (unique name) of your new model.
