@@ -21,16 +21,14 @@ SIMoN is written in Python 3.6, and uses Docker to manage its models and their i
 
 ## Setup
 SIMoN uses Docker and Compose to run its models in separate containers. To run SIMoN, clone the repo and install these tools.
+* Docker `https://docs.docker.com/install/`
+* Docker Compose `https://docs.docker.com/compose/install/`
+
 The Docker containers used for the models are built from Ubuntu 18.04 images, with the Python 3.6 and libzmq packages layered on top.
+
 The Docker container used for the database is a MongoDB image.
 
 Additionally, install `make`, so that the shell commands that operate SIMoN can be executed more easily using the Makefile.
-
-* install Docker
-        * https://docs.docker.com/install/
-* install Docker Compose
-        * https://docs.docker.com/compose/install/
-
 
 ## Usage
 1.  Choose the models that you want to run together in the SIMoN framework. Note their interdependencies carefully, and make sure that each model has a source for all of its necessary data inputs. Sample models are provided in the `examples` directory, where each model has its own directory. You can also create a new model by using the `template` directory as a blueprint.
@@ -62,11 +60,13 @@ SIMoN stores all of the data outputs from the models as documents in a Mongo dat
 You can retrieve documents using the standard Mongo tools, such as the Mongo shell or the Mongo Compass GUI application, and save them as JSON files.
 
 Using the command line:
-  * `$ MODEL_NAME=your_model_name`
-  * `$ YEAR=2035`
-  * `$ mongoexport --db broker --collection sub --limit 1
-      --query "{source: '$MODEL_NAME', year: $YEAR}"
-      --out $YEAR_$MODEL_NAME.json`
+```
+$ MODEL_NAME=your_model_name
+$ YEAR=2035
+$ mongoexport --db broker --collection sub --limit 1 \
+  --query "{source: '$MODEL_NAME', year: $YEAR}" \
+  --out $YEAR_$MODEL_NAME.json
+```
 
 Once you've retrieved a document and saved it as a JSON file, you can plot the data on a choropleth map using the Python script in the `viz` directory.
 ```
