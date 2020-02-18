@@ -31,26 +31,27 @@ The Docker container used for the database is a MongoDB image.
 Additionally, install `make`, so that the shell commands that operate SIMoN can be executed more easily using the Makefile.
 
 ## Usage
-1.  Choose the models that you want to run together in the SIMoN framework. Note their interdependencies carefully, and make sure that each model has a source for all of its necessary data inputs. Sample models are provided in the `examples` directory, where each model has its own directory. You can also create a new model by using the `template` directory as a blueprint.
-2.  Once you have a complete set of models where all dependencies are satisfied, add the unique name of each of the models to the "models" list in `broker/config.json`.
-3.  Create an entry for each model in the "services" section in `build/docker-compose.yml` and specify the path to each model's directory.
-    ```
-    model_name_1:
-        build: ../models/examples/model_name_1/
-        volumes:
-            - ../models/examples/model_name_1:/opt:ro
-4. Optionally, adjust the models' output schemas, in order to change the granularity of their output data. The recognized granularities (all lowercase) are:
+1.  Choose the models that you want to run together in the SIMoN framework. The default SIMoN configuration uses these 5 sample models:
+    * population
+    * power_demand
+    * power_supply
+    * water_demand
+    * gfdl_cm3
+
+    To use a different set of models, see the instructions on how to "Add a new model" and "Remove a model" below.
+
+2. Optionally, adjust the models' output schemas, in order to change the granularity of their output data. The recognized granularities (all lowercase) are:
     * usa48
     * state
     * county
     * nerc
     * huc8
     * latlon
-5. To start SIMoN:
+3. To start SIMoN:
     * `make all`
-    * Use `docker logs broker -f` to track output from the broker container. The increment step "incstep" should increase over time as models publish their data, and the mongodb container should populate with documents (database: broker; collection: sub).
+    * Use `docker logs broker -f` to track output from the broker container. The increment step "incstep" should increase over time as models publish their data, and the mongodb container should populate with documents (database: `broker`; collection: `sub`).
     * Use `docker logs build_your_model_name_1 -f` to track output from the model named `your_model_name`.
-6.  To shut down SIMoN:
+4.  To shut down SIMoN:
     * `make down` to stop all models
     * `make clean` to stop all models and clear the database
 
@@ -78,8 +79,16 @@ A new HTML file will be created in the `viz` directory. Open this file in a web 
 ![precipitation](viz/demo/2035_precipitation.png)
 
 ## Add a new model
-1. In the models/ directory, copy the template/ directory and rename it to the ID (unique name) of your new model.
-1. Within this new directory are several required directories and files:
+1.  Choose the models that you want to run together in the SIMoN framework. Note their interdependencies carefully, and make sure that each model has a source for all of its necessary data inputs. Sample models are provided in the `examples` directory, where each model has its own directory. Each model's dependencies are specified in its `schemas/inputs` directory. For example, the `power_supply` model relies on the `power_demand` model, and the `power_demand` and `water_demand` models both rely on the `population` model. The `population` and `gfdl_cm3` models do not rely on any other models, and can each be run independently.
+2.  Once you have a complete set of models where all dependencies are satisfied, add the unique name of each of the models to the "models" list in `broker/config.json`.
+3.  Create an entry for each model in the "services" section in `build/docker-compose.yml` and specify the path to each model's directory.
+    ```
+    model_name_1:
+        build: ../models/examples/model_name_1/
+        volumes:
+            - ../models/examples/model_name_1:/opt:ro
+4. In the `models` directory, copy the `template` directory, which serves as a blueprint for new models. Rename `template` to the ID (unique name) of your new model.
+5. Within this new directory are several required directories and files that need to be modified:
     * `src/` stores the model's source code
         * `inner_wrapper.py`
             * This file receives input data from other models, performs operations on it, and returns the output data that will be sent to other models.
@@ -99,10 +108,10 @@ A new HTML file will be created in the `viz` directory. Open this file in a web 
         * granularity: specifies the granularity of data that this model will output. SIMoN will translate outgoing data to this granularity after receiving it from the model's inner wrapper.
     * `config/` stores JSON objects with the initial data and parameters needed to bootstrap the model and run its first time step.
         * `*.json`
-2. Add the name of the new model to the "models" list in `broker/config.json`.
-3. Add the new model to the "services" in `build/docker-compose.yml` by specifying its path:
-    ```
-    new_model_name:
-        build: ../models/examples/new_model_name/
-        volumes:
-            - ../models/examples/new_model_name:/opt:ro
+
+## Remove a model
+1.  Before removing a model from SIMoN, make sure that no other models rely on it for their dependencies. For example, the `gfdl_cm3` model can safely be removed because no other models depend on it for their data inputs. However, the `power_demand` model cannot be removed without also removing the `power_supply` model, which relies on `power_demand` as an input.
+2.  Remove the name of the model from the "models" list in `broker/config.json`.
+3.  Remove the entry for the model in the "services" section of `build/docker-compose.yml`.
+4.  The model will no longer be included in future SIMoN runs. Note, however, that the model's dedicated directory is left intact.
+5.  To add the model back into SIMoN, simply repeat steps 2 and 3 from "Add a new model."
