@@ -58,9 +58,8 @@ Additionally, install `make`, so that the shell commands that operate SIMoN can 
 ## Visualization
 SIMoN stores all of the data outputs from the models as documents in a Mongo database (container name `mongodb`, accessible via the default Mongo port 27017).
 
-You can retrieve documents using the standard Mongo tools, such as the Mongo shell or the Mongo Compass GUI application, and save them as JSON files.
+You can retrieve documents using the `mongoexport` command line tool, and save them as JSON files.
 
-Using the command line:
 ```
 $ MODEL_NAME=your_model_name
 $ YEAR=2035
