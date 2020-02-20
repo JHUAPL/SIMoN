@@ -97,9 +97,9 @@ A new HTML file will be created in the `viz` directory. Open this file in a web 
                 * `configure()` simply loads the initialization data from the `config` directory.
                 * `increment()` performs the model's calculations by calling any of the its custom function(s) (e.g., my_function_1) defined in other scripts.
         * `my_function_1.py`
-            * aditional code that your model uses
+            * additional code that your model uses
         * `my_function_2.py`
-            * aditional code that your model uses
+            * additional code that your model uses
     * `schemas/input/` stores JSON schemas that incoming data messages must validate against.
 	* `*.json`
         * granularity: specifies the granularity of input data that this model needs. SIMoN will translate incoming data to this granularity before sending it to the model's inner wrapper.
