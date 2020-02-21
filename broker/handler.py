@@ -14,17 +14,18 @@ class Broker:
         constructor for the broker
         """
 
+        with open('/opt/config.json') as models_file:
+            config = json.load(models_file)
+        self.models = {model: {} for model in config['models']}
+        self.boot_timer = config['boot_timer']  # units: seconds
+        self.watchdog_timer = config['watchdog_timer']  # units: seconds
+        self.max_incstep = config['max_incstep']  # the number of increments to run before shutting down
+        self.initial_year = config['initial_year']  # the year that corresponds to incstep 0 (the data in the config directory)
+
         self.status = 'booting'
         self.pub_queue = Queue()
-        with open('/opt/config.json') as models_file:
-            models = json.load(models_file)
-        self.models = {model: {} for model in models['models']}
         self.model_tracker = set()
         self.incstep = 1
-        self.max_incstep = 50
-        self.initial_year = 2016
-        self.boot_timer = 60  # units: seconds
-        self.watchdog_timer = 60  # units: seconds
         self.client = None
         self.mongo_queue = Queue()
         self.broker_id = 'broker'

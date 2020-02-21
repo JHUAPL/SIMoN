@@ -1,4 +1,10 @@
 {
+    "boot_timer": 60,
+    "watchdog_timer": 60,
+
+    "max_incstep": 50,
+    "initial_year": 2016,
+
     "models": [
 	"population",
 	"power_supply",
