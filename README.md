@@ -58,20 +58,24 @@ Additionally, install `make`, so that the shell commands that operate SIMoN can 
 ## Visualization
 SIMoN stores all of the data outputs from the models as documents in a Mongo database (container name `mongodb`, accessible via the default Mongo port 27017).
 
-You can retrieve documents using the `mongoexport` command line tool, and save them as JSON files.
+You can retrieve a document and save it as a JSON file using the `export.sh` bash script in the `viz` directory.
 
-```
-$ MODEL_NAME=your_model_name
-$ YEAR=2035
-$ mongoexport --db broker --collection sub --limit 1 \
-  --query "{source: '$MODEL_NAME', year: $YEAR}" \
-  --out $YEAR_$MODEL_NAME.json
-```
-
-Once you've retrieved a document and saved it as a JSON file, you can plot the data on a choropleth map using the Python script in the `viz` directory.
 ```
 cd viz/
-python3.6 plot.py $YEAR_$MODEL_NAME.json
+./export.sh <model_name> <year>
+```
+For example,
+```
+./export.sh gfdl_cm3 2035
+```
+
+Once you've retrieved a document and saved it as a JSON file, plot the data on a choropleth map using the Python script in the `viz` directory.
+```
+python plot.py <your_mongo_doc>.json
+```
+For example,
+```
+python plot.py 2025_gfdl_cm3.json
 ```
 A new HTML file will be created in the `viz` directory. Open this file in a web browser to display the Bokeh visualization.
 ![evaporation](viz/demo/2035_evaporation.png)
