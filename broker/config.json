@@ -1,4 +1,6 @@
 {
+    "mongo_port": 27017,
+
     "boot_timer": 60,
     "watchdog_timer": 60,
 

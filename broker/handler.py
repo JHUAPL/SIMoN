@@ -21,6 +21,7 @@ class Broker:
         self.watchdog_timer = config['watchdog_timer']  # units: seconds
         self.max_incstep = config['max_incstep']  # the number of increments to run before shutting down
         self.initial_year = config['initial_year']  # the year that corresponds to incstep 0 (the data in the config directory)
+        self.mongo_port = config['mongo_port']  # the port for the SIMoN Mongo instance (needs to be the same port as in the build/docker-compose.yml file)
 
         self.status = 'booting'
         self.pub_queue = Queue()
@@ -45,7 +46,7 @@ class Broker:
         """
 
         try:
-            self.client = pymongo.MongoClient('mongodb://mongodb:27017/')
+            self.client = pymongo.MongoClient(f'mongodb://simon_mongodb:{self.mongo_port}/')
             logging.info("connected to Mongo DB")
         except Exception as e:
             logging.error("failed to connect to Mongo DB")

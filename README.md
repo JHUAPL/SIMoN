@@ -56,7 +56,7 @@ Additionally, install `make`, so that the shell commands that operate SIMoN can 
     * `make clean` to stop all models and clear the database
 
 ## Visualization
-SIMoN stores all of the data outputs from the models as documents in a Mongo database (container name `mongodb`, accessible via the default Mongo port 27017).
+SIMoN stores all of the data outputs from the models as documents in a Mongo database (the `simon_mongodb` container).
 
 You can retrieve a document and save it as a JSON file using the `export.sh` bash script in the `viz` directory.
 

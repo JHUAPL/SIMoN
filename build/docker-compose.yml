@@ -27,9 +27,9 @@ services:
                 volumes:
                 - ../models/examples/power_demand:/opt:ro
 
-        mongodb:
+        simon_mongodb:
                 image: mongo:latest
-                container_name: mongodb
+                container_name: simon_mongodb
                 labels:
                         simon: "database"
                 expose:
@@ -37,7 +37,7 @@ services:
                 ports:
                         - "27017:27017"
                 environment:
-                        - MONGO_URI=mongodb:27017
+                        - MONGO_URI=simon_mongodb:27017
 
         broker:
                 build: ../broker/
