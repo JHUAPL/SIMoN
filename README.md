@@ -69,8 +69,9 @@ For example,
 ./export.sh gfdl_cm3 2035
 ```
 
-Once you've retrieved a document and saved it as a JSON file, plot the data on a choropleth map using the Python script in the `viz` directory.
+Once you've retrieved a document and saved it as a JSON file, plot the data on a choropleth map using the Python script in the `viz` directory. (Just make sure to install requirements first.)
 ```
+pip install -r requirements.txt
 python plot.py <your_mongo_doc>.json
 ```
 For example,
