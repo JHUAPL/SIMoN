@@ -10,6 +10,3 @@ all: build-model up
 
 down:
 	cd build && docker-compose down
-
-clean: down
-	sudo rm -rf ./data/db
