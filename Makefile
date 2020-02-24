@@ -8,5 +8,8 @@ up:
 
 all: build-model up
 
-down:
+stop:
+	cd build && docker-compose stop
+
+clean:
 	cd build && docker-compose down

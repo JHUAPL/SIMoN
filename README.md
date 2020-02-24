@@ -52,8 +52,8 @@ Additionally, install `make`, so that the shell commands that operate SIMoN can 
     * Use `docker logs broker -f` to track output from the broker container. The increment step "incstep" should increase over time as models publish their data, and the mongodb container should populate with documents (database: `broker`; collection: `sub`).
     * Use `docker logs build_your_model_name_1 -f` to track output from the model named `your_model_name`.
 4.  To shut down SIMoN:
-    * `make down` to stop all models
-    * `make clean` to stop all models and clear the database
+    * `make stop` to stop all the containers
+    * `make clean` to stop and remove all the containers
 
 ## Visualization
 SIMoN stores all of the data outputs from the models as documents in a Mongo database (the `simon_mongodb` container).
