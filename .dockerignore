@@ -1,2 +1,3 @@
 .git
-**/*.shp
+graphs/shapefiles/
+viz/
