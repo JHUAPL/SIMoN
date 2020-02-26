@@ -1,5 +1,7 @@
 SHELL := /bin/bash
 
+.PHONY: build-model up all stop clean purge
+
 build-model:
 	docker build -t simon-model:latest -f build/Dockerfile .
 
@@ -13,3 +15,6 @@ stop:
 
 clean:
 	cd build && docker-compose down
+
+purge:
+	cd build && docker-compose down --rmi all
