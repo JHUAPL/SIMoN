@@ -18,7 +18,7 @@ from bokeh.plotting import figure, output_file, save
 
 # parameters
 json_file = sys.argv[1]  # path to the Mongo document to plot
-shapefile_dir = "../graphs/shapefiles/"  # path to the directory of shapefiles
+shapefile_dir = os.path.join(os.path.dirname(__file__), os.pardir, "graphs", "shapefiles")  # path to the directory of shapefiles
 plot_width = 1200  # pixel width of the plot
 plot_height = 800  # pixel height of the plot
 projection = 4326  # coordinate reference system to use for plotting
