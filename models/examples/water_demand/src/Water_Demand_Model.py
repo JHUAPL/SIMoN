@@ -3,10 +3,6 @@
 # Distributed under the terms of the MIT License.
 
 
-import json
-import pandas as pd
-
-
 def Water_Demand_Simulation(countypop, rates):
 
     water = {}

@@ -6,7 +6,6 @@
 from statsmodels.tsa.holtwinters import Holt
 import pandas as pd
 import numpy as np
-import json
 
 
 def pop_sim(init_data, num_increments):

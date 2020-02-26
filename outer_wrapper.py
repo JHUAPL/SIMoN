@@ -9,7 +9,7 @@ from jsonschema import validate, ValidationError
 import time
 import glob
 from threading import Thread, Event
-from queue import Queue, Full, Empty
+from queue import Queue, Empty
 from abc import ABC, abstractmethod
 import os
 import sys
