@@ -4,6 +4,7 @@
 # Plot data on a choropleth map
 
 # import packages
+import click
 import sys
 import os
 import numpy as np
@@ -15,13 +16,6 @@ from bokeh.models import LogColorMapper
 from bokeh.palettes import Blues256 as palette
 palette.reverse()
 from bokeh.plotting import figure, output_file, save
-
-# parameters
-json_file = sys.argv[1]  # path to the Mongo document to plot
-shapefile_dir = os.path.join(os.path.dirname(__file__), os.pardir, "graphs", "shapefiles")  # path to the directory of shapefiles
-plot_width = 1200  # pixel width of the plot
-plot_height = 800  # pixel height of the plot
-projection = 4326  # coordinate reference system to use for plotting
 
 # geopandas functions for getting coordinates
 # references:
@@ -106,7 +100,7 @@ def get_coords(row, coord_type):
 # plot data on the shapefile
 # references:
 # https://docs.bokeh.org/en/latest/docs/gallery/texas.html
-def plot_mongo_doc(data, projection=4326, save_fig=True, show_fig=True):
+def plot_mongo_doc(data, shapefile_dir=".", projection=4326, plot_width=1200, plot_height=800, show_fig=False, save_fig=True):
 
     df = {}
     geographies = {}
@@ -189,8 +183,23 @@ def plot_mongo_doc(data, projection=4326, save_fig=True, show_fig=True):
             show(fig)
 
 
-# load and plot the data
-with open(json_file) as f:
-    data = json.load(f)
+@click.command()
+@click.option("--data", type=click.Path(), required=True, help="path to the JSON file (a dict mapping geographic IDs to numerical values)")
+@click.option("--shapefile_dir", type=click.Path(), default=os.path.join(os.path.dirname(__file__), os.pardir, "graphs", "shapefiles"), help="path to the directory of shapefiles")
+@click.option("--projection", default=4326, help="coordinate reference system to use for plotting")
+@click.option("--width", default=1200, help="pixel width of the plot")
+@click.option("--height", default=800, help="pixel height of the plot")
+@click.option("--show", type=click.BOOL, default=False, help="display the plot")
+@click.option("--save", type=click.BOOL, default=True, help="write the plot to a file")
+def main(data, shapefile_dir, projection, width, height, show, save):
 
-plot_mongo_doc(data, projection=projection, show_fig=False)
+    # load the data
+    with open(data) as f:
+        data_dict = json.load(f)
+
+    # plot the data
+    plot_mongo_doc(data_dict, shapefile_dir=shapefile_dir, projection=projection, plot_width=width, plot_height=height, show_fig=show, save_fig=save)
+
+
+if __name__ == "__main__":
+    main()
