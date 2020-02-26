@@ -1,3 +1,8 @@
+# Copyright 2020 The Johns Hopkins University Applied Physics Laboratory LLC
+# All rights reserved.
+# Distributed under the terms of the MIT License.
+
+
 import glob
 import sys
 
@@ -16,13 +21,9 @@ class InnerWrapper(OuterWrapper):
     def configure(self, **kwargs):
         if 'rates' in kwargs.keys():
             self.rate = kwargs['rates']
-        if (
-            '2016_populations' in kwargs.keys()
-        ):  # instead of 2016 populations would put the name of the 2015 water consumption rate
+        if '2016_populations' in kwargs.keys():
             self.countypop = kwargs['2016_populations']
 
-    # replace the populations with the 2015 water consumption rate
-    # need to take out the extra variable
     def increment(self, **kwargs):
         if 'population' in kwargs.keys():
             self.countypop = kwargs['population']['population']['data']

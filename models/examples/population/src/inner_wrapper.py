@@ -1,3 +1,8 @@
+# Copyright 2020 The Johns Hopkins University Applied Physics Laboratory LLC
+# All rights reserved.
+# Distributed under the terms of the MIT License.
+
+
 import glob
 import sys
 
@@ -28,9 +33,6 @@ class InnerWrapper(OuterWrapper):
             }
         }
         return results
-
-
-# is taking in the data from the previous run
 
 
 def main():

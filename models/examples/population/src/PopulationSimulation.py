@@ -1,15 +1,12 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Jul 11 11:38:23 2018
+# Copyright 2020 The Johns Hopkins University Applied Physics Laboratory LLC
+# All rights reserved.
+# Distributed under the terms of the MIT License.
 
-@author: ponzodj1
-"""
-
-import json
 
 from statsmodels.tsa.holtwinters import Holt
 import pandas as pd
 import numpy as np
+import json
 
 
 def pop_sim(init_data):
@@ -20,15 +17,12 @@ def pop_sim(init_data):
     except FileNotFoundError:
         data = init_data
 
-    # Creates a temp dict, iterates through the loaded json data dict in the form
-    # of {county1_index: {2000: pop, 2001: pop, etc}, county2_index:...}
-    # applies Holt linear trend method to predict one year ahead
-    # outputted data is dict of {county_index: next_year_pop}
-
     temp = {}
 
+    # data: {county1_index: {2000: pop, 2001: pop, etc}, county2_index:...}
     for key, county in data.items():
         population = pd.Series(county)
+        # applies Holt linear trend method to predict one year ahead
         fit1 = Holt(np.asarray(population)).fit(
             smoothing_level=0.7, smoothing_slope=0.3
         )
@@ -39,4 +33,5 @@ def pop_sim(init_data):
     with open('updated_populations.json', 'w') as file:
         file.write(json.dumps(data))
 
+    # output data is dict of {county_index: next_year_pop}
     return temp

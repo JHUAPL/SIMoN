@@ -1,7 +1,7 @@
-#!/usr/bin/env python
+# Copyright 2020 The Johns Hopkins University Applied Physics Laboratory LLC
+# All rights reserved.
+# Distributed under the terms of the MIT License.
 
-# COPYRIGHT NOTICE
-# (c) 2020 The Johns Hopkins University / Applied Physics Laboratory LLC.  All Rights Reserved.
 
 import zmq
 import json

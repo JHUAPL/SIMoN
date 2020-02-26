@@ -1,11 +1,14 @@
+# Copyright 2020 The Johns Hopkins University Applied Physics Laboratory LLC
+# All rights reserved.
+# Distributed under the terms of the MIT License.
+
+
 import glob
 import sys
 
 sys.path.append('/')
 from outer_wrapper import OuterWrapper
-from DemandSimulation import (
-    pow_dem_sim,
-)  # for water demand, going to do something similar ##
+from DemandSimulation import pow_dem_sim
 
 
 class InnerWrapper(OuterWrapper):
@@ -15,42 +18,28 @@ class InnerWrapper(OuterWrapper):
             model_id="power_demand", num_expected_inputs=num_input_schemas
         )
 
-    def configure(
-        self, **kwargs
-    ):  # this would be the water consumption rate in here
-        if (
-            'state_consumption_per_capita' in kwargs.keys()
-        ):  # instead of state, do water 2015, the json we made
-            self.cons = kwargs[
-                'state_consumption_per_capita'
-            ]  # copy the file name
+    def configure(self, **kwargs):
+        if 'state_consumption_per_capita' in kwargs.keys():
+            self.cons = kwargs['state_consumption_per_capita']
         else:
             print('State consumption data not found')
-        if (
-            '2016_populations' in kwargs.keys()
-        ):  # instead of 2016 populations would put the name of the 2015 water consumption rate
+        if '2016_populations' in kwargs.keys():
             self.pop = kwargs['2016_populations']
 
-    def increment(
-        self, **kwargs
-    ):  # this is handling all the new data that is coming from other models, the whole function would be similar besides power instead of water
+    def increment(self, **kwargs):
         if 'population' in kwargs.keys():
-            self.pop = kwargs['population']['population'][
-                'data'
-            ]  # assume you can keep as is for now and it may work
+            self.pop = kwargs['population']['population']['data']
         else:
             print('input population not found')
-        demand = pow_dem_sim(
-            self.pop, self.cons
-        )  # instead of power demand simulation, have water demand, your inputs will be population and consumption rate, #do water demand sim, #and change inputs to the actual name of our arguments
+
+        demand = pow_dem_sim(self.pop, self.cons)
 
         results = {
             'power_demand': {
                 'power_demand': {'data': demand, 'granularity': 'county'}
             }
-        }  # obviously this will all say water demand isntead of power demand
-        # checks to see if it has data on population, writes it to selfpop and outputs power demand
-        # does not use self because it doesnt use its own previous data
+        }
+
         return results
 
 
