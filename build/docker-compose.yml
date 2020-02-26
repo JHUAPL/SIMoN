@@ -2,47 +2,47 @@ version: '3'
 
 services:
 
-        population: 
-                build: ../models/examples/population/
-                volumes:
-                - ../models/examples/population:/opt:ro
+    population:
+        build: ../models/examples/population/
+        volumes:
+            - ../models/examples/population:/opt:ro
 
-        water_demand:
-                build: ../models/examples/water_demand/
-                volumes:
-                        - ../models/examples/water_demand:/opt:ro
+    water_demand:
+        build: ../models/examples/water_demand/
+        volumes:
+            - ../models/examples/water_demand:/opt:ro
 
-        gfdl_cm3:
-                build: ../models/examples/gfdl_cm3/
-                volumes:
-                        - ../models/examples/gfdl_cm3:/opt:ro
+    gfdl_cm3:
+        build: ../models/examples/gfdl_cm3/
+        volumes:
+            - ../models/examples/gfdl_cm3:/opt:ro
 
-        power_supply: 
-                build: ../models/examples/power_supply/
-                volumes:
-                - ../models/examples/power_supply:/opt:ro
+    power_supply:
+        build: ../models/examples/power_supply/
+        volumes:
+            - ../models/examples/power_supply:/opt:ro
 
-        power_demand: 
-                build: ../models/examples/power_demand/
-                volumes:
-                - ../models/examples/power_demand:/opt:ro
+    power_demand:
+        build: ../models/examples/power_demand/
+        volumes:
+            - ../models/examples/power_demand:/opt:ro
 
-        simon_mongodb:
-                image: mongo:latest
-                container_name: simon_mongodb
-                labels:
-                        simon: "database"
-                expose:
-                        - "27017"
-                ports:
-                        - "27017:27017"
-                environment:
-                        - MONGO_URI=simon_mongodb:27017
+    simon_mongodb:
+        image: mongo:latest
+        container_name: simon_mongodb
+        labels:
+            simon: "database"
+        expose:
+            - "27017"
+        ports:
+            - "27017:27017"
+        environment:
+            - MONGO_URI=simon_mongodb:27017
 
-        broker:
-                build: ../broker/
-                container_name: broker
-                labels:
-                        simon: "broker"
-                volumes:
-                        - ../broker:/opt:ro
+    broker:
+        build: ../broker/
+        container_name: broker
+        labels:
+            simon: "broker"
+        volumes:
+            - ../broker:/opt:ro
