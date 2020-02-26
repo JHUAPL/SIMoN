@@ -8,7 +8,7 @@ import sys
 
 sys.path.append('/')
 from outer_wrapper import OuterWrapper
-from PopulationSimulation import pop_sim
+from PopulationSimulation import pop_sim, get_data
 
 
 class InnerWrapper(OuterWrapper):
@@ -20,13 +20,15 @@ class InnerWrapper(OuterWrapper):
 
     def configure(self, **kwargs):
         if 'county_populations' in kwargs.keys():
-            self.data = kwargs['county_populations']
+            # number of years needs to be >= the maximum increment step
+            # 2016 is init increment
+            self.data = pop_sim(kwargs['county_populations'], 50)
+            print(self.data)
         else:
             print('population initialization data not found')
 
     def increment(self, **kwargs):
-        data = pop_sim(self.data)
-        self.data = data
+        data = get_data(self.data, self.initial_year + self.incstep)
         results = {
             'population': {
                 'population': {'data': data, 'granularity': 'county'}
