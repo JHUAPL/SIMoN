@@ -115,10 +115,10 @@ A new HTML file will be created in the `viz` directory. Open this file in a web 
             * additional code that your model uses
         * `my_function_2.py`
             * additional code that your model uses
-    * `schemas/input/` stores JSON schemas that incoming data messages must validate against.
+    * `schemas/input/` stores JSON schemas that incoming JSON data messages must validate against. SIMoN uses the `jsonschema` Python package to validate the data messages against the schemas.
 	* `*.json`
         * granularity: specifies the granularity of input data that this model needs. SIMoN will translate incoming data to this granularity before sending it to the model's inner wrapper.
-    * `schemas/output/` stores JSON schemas that outgoing data messages must validate against.
+    * `schemas/output/` stores JSON schemas that outgoing JSON data messages must validate against. SIMoN uses the `jsonschema` Python package to validate the data messages against the schemas.
         * `*.json`
         * granularity: specifies the granularity of data that this model will output. SIMoN will translate outgoing data to this granularity after receiving it from the model's inner wrapper.
     * `config/` stores JSON objects with the initial data and parameters needed to bootstrap the model and run its first time step.
