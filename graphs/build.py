@@ -1,5 +1,7 @@
-# COPYRIGHT NOTICE
-# (c) 2020 The Johns Hopkins University / Applied Physics Laboratory LLC.  All Rights Reserved.
+# Copyright 2020 The Johns Hopkins University Applied Physics Laboratory LLC
+# All rights reserved.
+# Distributed under the terms of the MIT License.
+
 
 from datetime import datetime
 start = datetime.now()

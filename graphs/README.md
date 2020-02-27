@@ -28,18 +28,30 @@ Both JSON graphs have 3 key attributes:
 
 ## Installation
 
+Use Python 3.6 to run the graph construction tools.
+
 1. install `libspatialindex`
+
     a. install `make`, `cmake`, and a compiler (`g++` or `gcc`)
+
     b. `wget` https://github.com/libspatialindex/libspatialindex/releases/download/1.9.3/spatialindex-src-1.9.3.tar.gz
+
     c. `tar xfvz spatialindex-src-1.9.3.tar.gz`
+
     d. `cd spatialindex-src-1.9.3`
+
     e. `cmake -DCMAKE_INSTALL_PREFIX=/home/username .`
+
     f. `make`
+
     g. `make install`
 
 2. install Python packages
+
     a. `pip install -r requirements.txt`
 
 3. test installation
+
     a. `export LD_LIBRARY_PATH=/home/username/lib`
+
     b. `python test_installation.py`

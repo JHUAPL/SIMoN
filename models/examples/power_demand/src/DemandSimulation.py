@@ -1,19 +1,13 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Jul 11 14:10:24 2018
+# Copyright 2020 The Johns Hopkins University Applied Physics Laboratory LLC
+# All rights reserved.
+# Distributed under the terms of the MIT License.
 
-@author: ponzodj1
-"""
 
 import pandas as pd
 
 
 def pow_dem_sim(pop, cons):
-    # sets baseline initialization if no data received
 
-    # Must receive data as dict of {county_id: current_population, ...}
-    # loads in static state values
-    # simply multiplies current pop by state consumption per capita
     temp = {}
 
     count = pd.DataFrame(pop, index=['pop'])
@@ -34,6 +28,7 @@ def pow_dem_sim(pop, cons):
         right_on='index',
         how='left',
     )
+    # simply multiplies current pop by state consumption per capita
     count['demand'] = count.apply(
         lambda x: (x.pop_y * x.cons) * x.perc, axis=1
     )
