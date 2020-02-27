@@ -486,7 +486,7 @@ class OuterWrapper(ABC):
 
             logging.debug(json.dumps(message))
 
-    def pub(self, event):
+    def pub(self, event, context):
         """
         publishes messages to the broker, including status messages and data messages
         Sets the shutdown event if an outgoing data message matches more than one output schema.
@@ -495,7 +495,6 @@ class OuterWrapper(ABC):
         """
 
         # connect to zmq
-        context = zmq.Context()
         sock = context.socket(zmq.PUB)
         sock.setsockopt(zmq.LINGER, 1000)
         sock.connect('tcp://broker:5555')
@@ -577,9 +576,8 @@ class OuterWrapper(ABC):
                 event.set()
 
         sock.close()
-        context.term()
 
-    def sub(self, event):
+    def sub(self, event, context):
         """
         connects to the broker's PUB as a subscriber and receives all messages sent from the broker,
         and all messages sent by other models and forwarded by the broker.
@@ -589,7 +587,6 @@ class OuterWrapper(ABC):
         """
 
         # connect to zmq
-        context = zmq.Context()
         sock = context.socket(zmq.SUB)
         sock.setsockopt(zmq.SUBSCRIBE, b"")
         sock.setsockopt(zmq.RCVTIMEO, 0)
@@ -613,7 +610,6 @@ class OuterWrapper(ABC):
                 self.action_queue.put(message)
 
         sock.close()
-        context.term()
 
     def insert_data_message(self, message):
         """
@@ -743,13 +739,14 @@ class OuterWrapper(ABC):
 
         # start the threads
         shutdown = Event()
+        context = zmq.Context()
 
         # listen for messages
-        subscribe_thread = Thread(target=self.sub, args=(shutdown,))
+        subscribe_thread = Thread(target=self.sub, args=(shutdown, context,))
         subscribe_thread.start()
 
         # publish messages
-        publish_thread = Thread(target=self.pub, args=(shutdown,))
+        publish_thread = Thread(target=self.pub, args=(shutdown, context,))
         publish_thread.start()
 
         # handle increments
@@ -770,5 +767,6 @@ class OuterWrapper(ABC):
         except Exception as e:
             logging.critical(e)
         finally:
+            context.term()
             shutdown.set()
             logging.critical(f"{self.model_id} model has shut down")

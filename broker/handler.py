@@ -87,14 +87,13 @@ class Broker:
             message['current_year'] = self.incstep + self.initial_year
             self.pub_queue.put(message)
 
-    def pub(self, event):
+    def pub(self, event, context):
         """
         publishes messages to the models, via the forwarder's SUB
         :param event: the shutdown event for managing threads
         :return: runs continuously until the shutdown event is set, then closes its zmq socket
         """
 
-        context = zmq.Context()
         sock = context.socket(zmq.PUB)
         sock.setsockopt(zmq.LINGER, 1000)
         sock.connect('tcp://broker:5555')
@@ -107,16 +106,14 @@ class Broker:
             sock.send_json(message)
 
         sock.close()
-        context.term()
 
-    def sub(self, event):
+    def sub(self, event, context):
         """
         receives messages from the models, via the forwarder's PUB
         :param event: the shutdown event for managing threads
         :return: runs continuously until the shutdown event is set, then closes its zmq socket
         """
 
-        context = zmq.Context()
         sock = context.socket(zmq.SUB)
         sock.setsockopt(zmq.SUBSCRIBE, b"")
         sock.setsockopt(zmq.RCVTIMEO, 0)
@@ -138,9 +135,8 @@ class Broker:
                 self.mongo_queue.put(('sub', message))
 
         sock.close()
-        context.term()
 
-    def forwarder(self, event):
+    def forwarder(self, event, context):
         """
         acts as a proxy between models by pushing messages received by the broker's SUB to the broker's PUB
         :param event: the shutdown event for managing threads
@@ -148,7 +144,6 @@ class Broker:
         """
 
         logging.info("started forwarder")
-        context = zmq.Context()
 
         frontend = context.socket(zmq.SUB)
         frontend.setsockopt(zmq.SUBSCRIBE, b"")
@@ -173,7 +168,6 @@ class Broker:
         logging.critical("forwarder is shutting down")
         frontend.close()
         backend.close()
-        context.term()
 
     def watchdog(self, event):
         """
@@ -254,14 +248,15 @@ class Broker:
         """
 
         shutdown = Event()
+        context = zmq.Context()
 
-        forwarder_thread = Thread(target=self.forwarder, args=(shutdown,))
+        forwarder_thread = Thread(target=self.forwarder, args=(shutdown, context,))
         forwarder_thread.start()
 
-        subscribe_thread = Thread(target=self.sub, args=(shutdown,))
+        subscribe_thread = Thread(target=self.sub, args=(shutdown, context,))
         subscribe_thread.start()
 
-        publish_thread = Thread(target=self.pub, args=(shutdown,))
+        publish_thread = Thread(target=self.pub, args=(shutdown, context,))
         publish_thread.start()
 
         status_thread = Thread(target=self.send_status, args=(shutdown,))
@@ -286,6 +281,7 @@ class Broker:
         except Exception as e:
             logging.critical(e)
         finally:
+            context.term()
             shutdown.set()
             logging.critical("broker has shut down")
 
