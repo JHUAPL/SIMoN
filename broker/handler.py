@@ -37,7 +37,7 @@ class Broker:
         self.broker_id = 'broker'
 
         logging.basicConfig(
-            level=logging.DEBUG,
+            level=logging.INFO,
             stream=sys.stdout,
             format='%(asctime)s - %(levelname)s - %(filename)s:%(funcName)s:%(lineno)d - %(message)s',
         )
@@ -102,7 +102,7 @@ class Broker:
                 message = self.pub_queue.get(timeout=0.1)
             except Empty:
                 continue
-            logging.info(json.dumps(message))
+            logging.debug(json.dumps(message))
             sock.send_json(message)
 
         sock.close()
@@ -124,7 +124,7 @@ class Broker:
                 message = sock.recv_json()
             except zmq.ZMQError:
                 continue
-            logging.info(json.dumps(message))
+            logging.debug(json.dumps(message))
             if (
                 message.get('source') in self.models
                 and message.get('signal') == 'status'

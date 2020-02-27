@@ -197,7 +197,7 @@ class OuterWrapper(ABC):
         )
 
         logging.basicConfig(
-            level=logging.DEBUG,
+            level=logging.INFO,
             stream=sys.stdout,
             format='%(asctime)s - %(levelname)s - %(filename)s:%(funcName)s:%(lineno)d - %(message)s',
         )
@@ -517,7 +517,7 @@ class OuterWrapper(ABC):
             for name, schema in self.output_schemas.items():
                 try:
                     validate(message['payload'], schema)
-                    logging.info(f"validated outgoing message: {message}")
+                    logging.info(f"validated outgoing message from {message['source']}")
                     matched.append(schema)
 
                     # translate each data variable to output schema's granularity
@@ -557,11 +557,11 @@ class OuterWrapper(ABC):
                         message['payload'][item]['granularity'] = dest_gran
 
                 except ValidationError:
-                    logging.info("validation error")
+                    logging.debug("validation error")
                 except json.JSONDecodeError:
                     logging.warning("json decode error")
             if len(matched) == 0:
-                logging.info(
+                logging.debug(
                     f"message didn't match any output schemas: {message['source']}"
                 )
             elif len(matched) == 1:
@@ -598,7 +598,7 @@ class OuterWrapper(ABC):
                 message = sock.recv_json()
             except zmq.ZMQError:
                 continue
-            logging.info(json.dumps(message))
+            logging.debug(json.dumps(message))
 
             signal = message.get('signal')
             if signal == 'status' and message.get('source') == 'broker':
@@ -627,7 +627,7 @@ class OuterWrapper(ABC):
             try:
                 validate(message['payload'], schema)
                 logging.info(
-                    f"schema {name} validated incoming message: {message}"
+                    f"schema {name} validated incoming message from {message['source']}"
                 )
                 if name in self.validated_schemas:
                     logging.error(
@@ -675,12 +675,12 @@ class OuterWrapper(ABC):
 
                     self.validated_schemas[name] = message['payload']
             except ValidationError:
-                logging.info("validation error")
+                logging.debug("validation error")
             except json.JSONDecodeError:
                 logging.warning("json decode error")
 
         if len(matched) == 0:
-            logging.info(
+            logging.debug(
                 f"message didn't match any input schemas: {message['source']}"
             )
         return True
