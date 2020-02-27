@@ -15,6 +15,11 @@ SIMoN is written in Python 3.6, and uses Docker to manage its models and their i
 
 ## Requirements
 
+Supported operating systems:
+ - Linux
+ - macOS
+
+Software:
  - Python 3.6
  - Docker >= 18.09.6
  - Docker Compose >= 1.23.2
