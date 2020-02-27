@@ -28,7 +28,7 @@ services:
             - ../models/examples/power_demand:/opt:ro
 
     simon_mongodb:
-        image: mongo:latest
+        image: mongo:4.2.3
         container_name: simon_mongodb
         labels:
             simon: "database"
