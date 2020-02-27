@@ -41,7 +41,7 @@ class Broker:
             stream=sys.stdout,
             format='%(asctime)s - %(levelname)s - %(filename)s:%(funcName)s:%(lineno)d - %(message)s',
         )
-        logging.info(self.models)
+        logging.info(f"looking for models: {list(self.models.keys())}")
 
     def insert_into_mongodb(self, event):
         """
