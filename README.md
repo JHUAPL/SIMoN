@@ -26,14 +26,20 @@ Software:
 
 ## Setup
 SIMoN uses Docker and Compose to run its models in separate containers. To run SIMoN, clone the repo and install these tools.
-* Docker `https://docs.docker.com/install/`
-* Docker Compose `https://docs.docker.com/compose/install/`
+* [Docker](https://docs.docker.com/install/)
+* [Docker Compose](https://docs.docker.com/compose/install/)
 
 The Docker containers used for the models are built from Ubuntu 18.04 images, with the Python 3.6 and libzmq packages layered on top.
 
 The Docker container used for the database is a MongoDB image.
 
 Additionally, install `make`, so that the shell commands that operate SIMoN can be executed more easily using the Makefile.
+
+The Docker commands in the provided scripts assume that you are a privileged user. To use Docker as a non-root user, add your user to the `docker` group:
+```
+sudo usermod -aG docker <your_username>
+```
+Log out and back in for this to take effect.
 
 ## Usage
 1.  Choose the models that you want to run together in the SIMoN framework. The default SIMoN configuration uses these 5 sample models:
