@@ -1,13 +1,14 @@
-#!/usr/bin/env python
-# coding: utf-8
+# Copyright 2020 The Johns Hopkins University Applied Physics Laboratory LLC
+# All rights reserved.
+# Distributed under the terms of the MIT License.
 
-# Plot data on a choropleth map
 
-# import packages
 import click
 import sys
 import os
 import numpy as np
+from shapely.geometry.polygon import Polygon
+from shapely.geometry.multipolygon import MultiPolygon
 from geopandas import read_file
 import pandas as pd
 import json
@@ -17,84 +18,54 @@ from bokeh.palettes import Blues256 as palette
 palette.reverse()
 from bokeh.plotting import figure, output_file, save
 
+
 # geopandas functions for getting coordinates
 # references:
 # https://automating-gis-processes.github.io/2016/Lesson5-interactive-map-bokeh.html
 # https://discourse.bokeh.org/t/mapping-europe-with-bokeh-using-geopandas-and-handling-multipolygons/2571
 
-def getXYCoords(geometry, coord_type):
-    # Returns either x or y coordinates from geometry coordinate sequence. Used with LineString and Polygon geometries."""
+def get_xy_coords(geometry, coord_type):
+    """
+    Returns either x or y coordinates from geometry coordinate sequence. Used with Polygon geometries.
+    """
     if coord_type == 'x':
         return list(geometry.coords.xy[0])
     elif coord_type == 'y':
         return list(geometry.coords.xy[1])
 
 
-def getPolyCoords(geometry, coord_type):
-    # Returns Coordinates of Polygon using the Exterior of the Polygon."""
-    ext = geometry.exterior
-    return getXYCoords(ext, coord_type)
-
-
-def multiGeomHandler(multi_geometry, coord_type, geom_type):
+def get_poly_coords(geometry, coord_type):
     """
-    Function for handling multi-geometries. Can be MultiPoint, MultiLineString or MultiPolygon.
+    Returns Coordinates of Polygon using the Exterior of the Polygon
+    """
+    return get_xy_coords(geometry.exterior, coord_type)
+
+
+def multi_geom_handler(multi_geometry, coord_type):
+    """
+    Function for handling MultiPolygon geometries.
     Returns a list of coordinates where all parts of Multi-geometries are merged into a single list.
     Individual geometries are separated with np.nan which is how Bokeh wants them.
-    # Bokeh documentation regarding the Multi-geometry issues can be found here (it is an open issue)
-    # https://github.com/bokeh/bokeh/issues/2321
+    Bokeh documentation regarding the Multi-geometry issues can be found here (it is an open issue).
+    https://github.com/bokeh/bokeh/issues/2321
     """
-
-    for i, part in enumerate(multi_geometry):
-        # On the first part of the Multi-geometry initialize the coord_array (np.array)
-        if i == 0:
-            if geom_type == "MultiPoint":
-                coord_arrays = np.append(
-                    getPointCoords(part, coord_type), np.nan
-                )
-            elif geom_type == "MultiLineString":
-                coord_arrays = np.append(
-                    getLineCoords(part, coord_type), np.nan
-                )
-            elif geom_type == "MultiPolygon":
-                coord_arrays = np.append(
-                    getPolyCoords(part, coord_type), np.nan
-                )
-        else:
-            if geom_type == "MultiPoint":
-                coord_arrays = np.concatenate(
-                    [
-                        coord_arrays,
-                        np.append(getPointCoords(part, coord_type), np.nan),
-                    ]
-                )
-            elif geom_type == "MultiLineString":
-                coord_arrays = np.concatenate(
-                    [
-                        coord_arrays,
-                        np.append(getLineCoords(part, coord_type), np.nan),
-                    ]
-                )
-            elif geom_type == "MultiPolygon":
-                coord_arrays = np.concatenate(
-                    [
-                        coord_arrays,
-                        np.append(getPolyCoords(part, coord_type), np.nan),
-                    ]
-                )
-
-    # Return the coordinates
+    all_poly_coords = [np.append(get_poly_coords(part, coord_type), np.nan) for part in multi_geometry]
+    coord_arrays = np.concatenate(all_poly_coords)
     return coord_arrays
 
 
 def get_coords(row, coord_type):
-    """Returns the coordinates ('x' or 'y') of edges of a Polygon exterior"""
-    try:
-        # plot a single polygon
-        return getPolyCoords(row['geometry'], coord_type)
-    except Exception as e:
-        # plot multiple polygons
-        return multiGeomHandler(row['geometry'], coord_type, 'MultiPolygon')
+    """
+    Returns the coordinates ('x' or 'y') of edges of a Polygon exterior
+    """
+    poly_type = type(row['geometry'])
+
+    # get coords from a single polygon
+    if poly_type == Polygon:
+        return get_poly_coords(row['geometry'], coord_type)
+    # get coords from multiple polygons
+    elif poly_type == MultiPolygon:
+        return multi_geom_handler(row['geometry'], coord_type)
 
 
 # plot data on the shapefile
