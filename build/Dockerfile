@@ -3,5 +3,5 @@ RUN apt-get update && apt-get install -y python3-dev=3.6.7-1~18.04 python3-pip=9
 COPY ./build/requirements.txt /
 RUN pip3 install -r /requirements.txt
 COPY ./outer_wrapper.py /.
-COPY ./graphs/instance-graph.geojson /.
-COPY ./graphs/abstract-graph.geojson /.
+COPY ./graphs/out/instance-graph.geojson /.
+COPY ./graphs/out/abstract-graph.geojson /.
