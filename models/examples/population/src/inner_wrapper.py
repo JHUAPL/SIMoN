@@ -19,12 +19,12 @@ class InnerWrapper(OuterWrapper):
             model_id="population", num_expected_inputs=num_input_schemas
         )
 
+        # should match the max_incstep in broker/config.json
+        self.max_incstep = 50
+
     def configure(self, **kwargs):
         if 'county_populations' in kwargs.keys():
-            # number of years needs to be >= the maximum increment step
-            # 2016 is init increment
-            self.data = pop_sim(kwargs['county_populations'], 50)
-            print(self.data)
+            self.data = pop_sim(kwargs['county_populations'], self.max_incstep)
         else:
             logging.warning(f'incstep {self.incstep}: county_populations not found')
 
