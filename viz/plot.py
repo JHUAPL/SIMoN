@@ -80,7 +80,11 @@ def plot_mongo_doc(data, shapefile_dir=".", projection=4326, plot_width=1200, pl
     for dataset in datasets:
 
         granularity = data['payload'][dataset]['granularity']
-        print(f"dataset: {dataset}, granularity: {granularity}")
+        if not granularity:
+            print(f"skipping {dataset} (does not have a granularity specified)")
+            continue
+        else:
+            print(f"plotting {dataset} (granularity: {granularity})")
         instance_col_name = 'ID'
         year = data['year']
 
