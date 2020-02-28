@@ -1,4 +1,4 @@
-Rtree
-geojson
-geopandas
-networkx
+Rtree==0.9.4
+geojson==2.5.0
+geopandas==0.7.0
+networkx==2.4
