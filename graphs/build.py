@@ -15,12 +15,13 @@ import geojson
 import itertools
 from collections import defaultdict
 import uuid
+import os
 
 # where to save the graphs
-save_dir = "."
+save_dir = os.path.join(os.path.dirname(__file__), "out")
 
 # where the shapefiles are stored
-shapefile_dir = "."
+shapefile_dir = os.path.join(os.path.dirname(__file__), "shapefiles")
 
 # the coordinate reference system the shapefiles are defined on
 projection = 3085
