@@ -5,6 +5,7 @@
 
 import glob
 import sys
+import logging
 
 sys.path.append('/')
 from outer_wrapper import OuterWrapper
@@ -25,7 +26,7 @@ class InnerWrapper(OuterWrapper):
                 self.raw_data, self.incstep
             )
         else:
-            print('rcp data not found')
+            logging.warning(f'incstep {self.incstep}: rcp26data not found')
 
     def increment(self, **kwargs):
         self.global_temp, self.precipitation, self.evaporation = temp_inc(
