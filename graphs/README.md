@@ -40,18 +40,22 @@ Use Python 3.6 to run the graph construction tools.
 
     d. `cd spatialindex-src-1.9.3`
 
-    e. `cmake -DCMAKE_INSTALL_PREFIX=/home/username .`
+    e. `INSTALL_PATH=/home/your_username  # set your installation path`
 
-    f. `make`
+    f. `cmake -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH .`
 
-    g. `make install`
+    g. `make`
+
+    h. `make install`
 
 2. install Python packages
 
-    a. `pip install -r requirements.txt`
+    a. `export LD_LIBRARY_PATH=$INSTALL_PATH/lib`
+
+    b. `pip install -r requirements.txt`
 
 3. test installation
 
-    a. `export LD_LIBRARY_PATH=/home/username/lib`
+    a. `export LD_LIBRARY_PATH=$INSTALL_PATH/lib`
 
     b. `python test_installation.py`
