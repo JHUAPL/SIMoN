@@ -20,14 +20,14 @@ def temp_inc(init_data, year):
             # convert to format that plays nice with mongodb; only get U.S squares
             single_year_US[i] = {}
         for j in json1_data[i]:
-            mean_glob_temps.append(json1_data[i][j][year][3])
+            mean_glob_temps.append(json1_data[i][j][year][2])
 
             # contiguous United States boundaries
             if 49 >= float(i) >= 23 and -68 >= float(j) >= -128:
                 single_year_US[i][j] = (
                     json1_data[i][j][year][0],
                     json1_data[i][j][year][1],
-                    json1_data[i][j][year][3] - 273.15,
+                    json1_data[i][j][year][2] - 273.15,
                 )
 
     # apply weights to get global average temperature
