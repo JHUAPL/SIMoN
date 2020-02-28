@@ -188,7 +188,7 @@ class OuterWrapper(ABC):
             '    ".*": {'
             '      "type": "object", '
             '      "properties": {'
-            '         "data": {"type": "object"}, "granularity": {"type": "string"}'
+            '         "data": {"type": "object"}, "granularity": {"type": ["string", "null"]}'
             '      },'
             '      "required": ["data", "granularity"]'
             '    }'

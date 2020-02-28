@@ -36,8 +36,8 @@ class InnerWrapper(OuterWrapper):
         results = {
             'gfdl_cm3': {
                 'global_temp': {
-                    'data': {'temp': self.global_temp},
-                    'granularity': 'global',
+                    'data': {'global_temp': self.global_temp},
+                    'granularity': None,
                 },
                 'precipitation': {
                     'data': self.precipitation,
