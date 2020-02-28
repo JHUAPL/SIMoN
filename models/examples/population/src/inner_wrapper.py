@@ -5,6 +5,7 @@
 
 import glob
 import sys
+import logging
 
 sys.path.append('/')
 from outer_wrapper import OuterWrapper
@@ -25,7 +26,7 @@ class InnerWrapper(OuterWrapper):
             self.data = pop_sim(kwargs['county_populations'], 50)
             print(self.data)
         else:
-            print('population initialization data not found')
+            logging.warning(f'incstep {self.incstep}: county_populations not found')
 
     def increment(self, **kwargs):
         data = get_data(self.data, self.initial_year + self.incstep)

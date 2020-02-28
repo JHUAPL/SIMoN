@@ -5,6 +5,7 @@
 
 import glob
 import sys
+import logging
 
 sys.path.append('/')
 from outer_wrapper import OuterWrapper
@@ -21,14 +22,19 @@ class InnerWrapper(OuterWrapper):
     def configure(self, **kwargs):
         if 'rates' in kwargs.keys():
             self.rate = kwargs['rates']
+        else:
+            logging.warning(f'incstep {self.incstep}: rates not found')
         if '2016_populations' in kwargs.keys():
             self.countypop = kwargs['2016_populations']
+        else:
+            logging.warning(f'incstep {self.incstep}: 2016_populations not found')
 
     def increment(self, **kwargs):
         if 'population' in kwargs.keys():
             self.countypop = kwargs['population']['population']['data']
-        else:
-            print('input population not found')
+        elif self.incstep > 1:
+            logging.warning(f'incstep {self.incstep}: population not found')
+
         demand = Water_Demand_Simulation(self.countypop, self.rate)
 
         results = {
