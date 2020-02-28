@@ -13,9 +13,6 @@ from networkx.readwrite import json_graph
 import geojson
 
 import itertools
-import csv
-import sys
-import time
 from collections import defaultdict
 import uuid
 
@@ -45,36 +42,31 @@ states = read_file(f"{shapefile_dir}/shapefiles/simple1000_clipped_state.shp").t
 counties = read_file(f"{shapefile_dir}/shapefiles/simple1000_clipped_county.shp").to_crs(epsg=projection)
 nercs = read_file(f"{shapefile_dir}/shapefiles/simple1000_clipped_nerc.shp").to_crs(epsg=projection)
 huc8s = read_file(f"{shapefile_dir}/shapefiles/simple1000_clipped_huc8.shp").to_crs(epsg=projection)
-latlon = read_file(f"{shapefile_dir}/shapefiles/simple1000_clipped_latlon.shp").to_crs(epsg=projection)
+latlons = read_file(f"{shapefile_dir}/shapefiles/simple1000_clipped_latlon.shp").to_crs(epsg=projection)
 
 # nerc regions
 nercs['country'] = nercs.apply(lambda x: 1, axis=1)
 nercs['area'] = nercs.apply(lambda row: row['geometry'].area, axis=1)
-nercs['parent_ID'] = 'usa48'
 
 # nerc shapefile has the smallest scope, so it is used to define the scope of the USA
 country = nercs.dissolve(by='country',aggfunc={'area': 'sum'})
 country['NAME'] = "usa48"
 
-# states
-states['parent_ID'] = 'usa48'
-
 # counties
-counties.rename(columns={'STATEFP': 'parent_ID'}, inplace=True)
-counties['polygons'] = counties.geometry.copy()
+counties['county_polygons'] = counties.geometry.copy()
 counties.geometry = counties.geometry.representative_point()
 counties = sjoin(counties, states, how="inner", op='within')
-counties.geometry = counties.polygons
+counties.geometry = counties['county_polygons']
 counties.drop('index_right', axis=1, inplace=True)
 counties.rename(columns={'ID_left': 'ID'}, inplace=True)
 counties.rename(columns={'NAME_left': 'NAME'}, inplace=True)
 counties.rename(columns={'ID_right': 'parent_ID'}, inplace=True)
 
-# huc8
-huc8s['parent_ID'] = 'usa48'
-
 # latitude-longitude grid squares
-latlon["parent_ID"] = "usa48"
+latlons["parent_ID"] = "usa48"
+huc8s['parent_ID'] = 'usa48'
+nercs['parent_ID'] = 'usa48'
+states['parent_ID'] = 'usa48'
 
 # each shapefile should have 4 attributes: ID, NAME, parent_ID, geometry
 shapefiles = {}
@@ -82,7 +74,7 @@ shapefiles["state"] = states
 shapefiles["county"] = counties
 shapefiles["nerc"] = nercs
 shapefiles["huc8"] = huc8s
-shapefiles["latlon"] = latlon
+shapefiles["latlon"] = latlons
 
 for granularity, shapefile in shapefiles.items():
     for column in ['ID', 'NAME', 'geometry', 'parent_ID']:
