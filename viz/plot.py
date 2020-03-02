@@ -95,7 +95,7 @@ def plot_mongo_doc(data, shapefile_dir=".", projection=4326, plot_width=1200, pl
         )
         df[dataset][instance_col_name] = df[dataset].index
 
-        shapefile_path = f"{shapefile_dir}/simple1000_clipped_{granularity}.shp"
+        shapefile_path = f"{shapefile_dir}/{granularity}.shp"
         if os.path.exists(shapefile_path):
             geographies[dataset] = read_file(shapefile_path).to_crs(epsg=projection)
         else:

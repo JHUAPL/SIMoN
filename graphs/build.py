@@ -39,11 +39,11 @@ abstract_edges = [("usa48", "state"), ("state", "county"), ("usa48", "nerc"), ("
 save_shapes = False
 
 # open the shapefiles for each granularity
-states = read_file(f"{shapefile_dir}/simple1000_clipped_state.shp").to_crs(epsg=projection)
-counties = read_file(f"{shapefile_dir}/simple1000_clipped_county.shp").to_crs(epsg=projection)
-nercs = read_file(f"{shapefile_dir}/simple1000_clipped_nerc.shp").to_crs(epsg=projection)
-huc8s = read_file(f"{shapefile_dir}/simple1000_clipped_huc8.shp").to_crs(epsg=projection)
-latlons = read_file(f"{shapefile_dir}/simple1000_clipped_latlon.shp").to_crs(epsg=projection)
+states = read_file(f"{shapefile_dir}/state.shp").to_crs(epsg=projection)
+counties = read_file(f"{shapefile_dir}/county.shp").to_crs(epsg=projection)
+nercs = read_file(f"{shapefile_dir}/nerc.shp").to_crs(epsg=projection)
+huc8s = read_file(f"{shapefile_dir}/huc8.shp").to_crs(epsg=projection)
+latlons = read_file(f"{shapefile_dir}/latlon.shp").to_crs(epsg=projection)
 
 # nerc regions
 nercs['country'] = nercs.apply(lambda x: 1, axis=1)
