@@ -1,0 +1,19 @@
+{
+    "projection": 3085,
+
+    "scale_factor": 1000000,
+
+    "minimum_intersection_area": 1,
+
+    "abstract_edges": [
+        ["usa48", "state"],
+	["state", "county"],
+	["usa48", "nerc"],
+	["usa48", "huc8"],
+	["usa48", "latlon"]
+    ],
+
+    "save_shapes": false,
+
+    "tag": "latest"
+}

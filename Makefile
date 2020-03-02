@@ -18,3 +18,6 @@ clean:
 
 purge:
 	cd build && docker-compose -p simon down --rmi all
+
+graph:
+	cd graphs && docker build -t simon-graph:latest . && docker run -v `pwd`:/opt -d simon-graph:latest

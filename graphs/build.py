@@ -16,6 +16,10 @@ import itertools
 from collections import defaultdict
 import uuid
 import os
+import json
+
+with open(os.path.join(os.path.dirname(__file__), "config.json")) as f:
+    config = json.load(f)
 
 # where to save the graphs
 save_dir = os.path.join(os.path.dirname(__file__), "out")
@@ -24,19 +28,19 @@ save_dir = os.path.join(os.path.dirname(__file__), "out")
 shapefile_dir = os.path.join(os.path.dirname(__file__), "shapefiles")
 
 # the coordinate reference system the shapefiles are defined on
-projection = 3085
+projection = config["projection"]
 
 # scale the areas calculated for shapefile geometries from square kilometers to square meters
-scale_factor = 10**6
+scale_factor = config["scale_factor"]
 
 # the minimum area of a meet node (a node formed by the interestion of two disparate geograophic granularities), in square kilometers
-minimum_intersection_area = 1
+minimum_intersection_area = config["minimum_intersection_area"]
 
 # Define the abstract graph with a list of tuples with the form (source, destination), where source is a higher lower resolution granularity that encompasses destination, a higher resolution granularity.
-abstract_edges = [("usa48", "state"), ("state", "county"), ("usa48", "nerc"), ("usa48", "huc8"), ("usa48", "latlon")]
+abstract_edges = config["abstract_edges"]
 
 # Save the instance graph with its geometries included. This will create a very large graph.
-save_shapes = False
+save_shapes = config["save_shapes"]
 
 # open the shapefiles for each granularity
 states = read_file(f"{shapefile_dir}/state.shp").to_crs(epsg=projection)
@@ -257,7 +261,7 @@ print(metadata)
 
 # save the instance graph with its geometries (very large)
 if save_shapes:
-    with open("{}/{}-official-instance-graph-{}-shapes_{}km_simple1km.geojson".format(save_dir, "-".join(abstract_nodes), projection, minimum_intersection_area), mode='w') as outfile:
+    with open("{}/instance-graph_{}_{}_{}_{}_shapes.geojson".format(save_dir, "-".join(abstract_nodes), projection, minimum_intersection_area, config["tag"]), mode='w') as outfile:
         geojson.dump(json_graph.node_link_data(instance_graph), outfile)
 
 # remove geometries from the instance graph (much smaller)
@@ -267,9 +271,9 @@ for node in instance_graph_noshapes['nodes']:
         del node['shape']
 
 # save graphs to JSON files
-with open("{}/abstract-graph_{}_{}_{}km_simple1km.geojson".format(save_dir, "-".join(abstract_nodes), projection, minimum_intersection_area), mode='w') as outfile:
+with open("{}/abstract-graph_{}_{}_{}_{}.geojson".format(save_dir, "-".join(abstract_nodes), projection, minimum_intersection_area, config["tag"]), mode='w') as outfile:
     geojson.dump(json_graph.node_link_data(abstract_graph), outfile)
-with open("{}/instance-graph_{}_{}_{}km_simple1km.geojson".format(save_dir, "-".join(abstract_nodes), projection, minimum_intersection_area), mode='w') as outfile:
+with open("{}/instance-graph_{}_{}_{}_{}.geojson".format(save_dir, "-".join(abstract_nodes), projection, minimum_intersection_area, config["tag"]), mode='w') as outfile:
     geojson.dump(instance_graph_noshapes, outfile)
 
 print("done building graphs")
