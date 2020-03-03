@@ -1,17 +1,42 @@
 # SIMoN Granularity Graph Tool
 
-Build granularity graphs used for data translation in the SIMoN software application.
+Build the granularity graphs used for data translation in the SIMoN software application.
 
 Copyright 2020 The Johns Hopkins University Applied Physics Laboratory
 Licensed under the MIT License
 
 ## Description
 
+A key difficulty in combining models is resolving their data dependencies and discrepancies. By using the SIMoN software, a modeler is able to join models with disparate geographic definitions together in various combinations, allowing models to run together and exchange data that have heterogeneous definitions of geography.
+
+## Granularities
+
+SIMoN currently integrates models of population, power systems, water systems, and climate change. These domains each have their own hierarchies of geography, which include political, topographical, regulatory, and latitude-longitude grid boundaries.
+
+In order to translate data from its models across granularities, SIMoN uses shapefiles to define rigorous geographies in a partially ordered set of geographic partitions (e.g., counties, watersheds, power regions, and latitude-longitude squares). SIMoN creates a corresponding directed acyclic network graph representing all the granularities, their corresponding entities, and their relationships to each other. The individual models feed each other updated data inputs at synchronized time intervals, and traverse the network graph to translate their data from one granularity to another. A sample granularity graph is provided, but modelers can extend it or create a graph of their own, by modifying and using the `graphs/build.py` script.
+
+## Aggregators and Disaggregators
+
+The modeler can choose transformation functions, called aggregators and disaggregators, to translate data between compatible geographic definitions in various ways. These aggregators and disaggregators must conform to a set of mathematical axioms, including a partial inverse property, which are designed to create a provable notion of data consistency and reduce the possibility of self-propagating errors.
+
+## Basic Usage
+
 This tool uses shapefiles to generate two JSON graphs: an abstract graph and an instance graph.
 
-To use the generated graphs, rename the abstract graph to abstract-graph.geojson, and the instance graph to instance-graph.geojson.
+Run `make graph` from the top-level `simon` directory.
 
-Then place these two files in the graphs/ directory so that SIMoN will use them.
+This will start the `simon-graph` Docker container, and create an abstract graph / instance graph pair in the `graphs/out` directory. The container will exit once the graph pair has been built. To use the generated graphs for the next SIMoN run, rename the abstract graph to abstract-graph.geojson, and the instance graph to instance-graph.geojson.
+
+## Advanced Usage
+
+Adjust parameters in the `graphs/config.json` file.
+
+* `projection` is the EPSG coordinate reference system code that all of the shapefile polygons will be translated to, in order to ensure consistency. For the most precise results, use the original EPSG of the shapefiles.
+* `scale_factor` divides the area of each shapefile's polygons by a scalar, in order to use better units. For example, the provided shapefiles have length units of meters and area units of square meters. The default scale_factor is 1 million, in order to translate the area unit of the provided shapefiles from square meters to square kilometers. Change the scale factor to 1 to preserve the original units.
+* `minimum_intersection_area` sets the minimum area of an instance wedge node (a node that results from intersecting nodes from two different branches of the granularity graph). Because of precision errors, a minimum intersection area of 0 could result in the creation of many tiny, spurious nodes that clutter the instance graph. The default minimum intersection area is set to 1 length unit, where length unit is the length unit of the shapefiles after any scaling from the `scale_factor`.
+* `abstract_edges` is the list of edges in the abstract graph, where each edge is represented by a tuple in the form [source, target]. Adjust the items in this list to create a new abstract graph. The `build.py` script will generate the corresponding instace graph by finding the corresponding shapefiles in the `graphs/shapefiles` directory.
+* `save_shapes` specifies whether to create a third file that saves the large polygon shapes of the instance graph nodes.
+* `tag` is the suffix attached to the abstract graph and instance graph filenames.
 
 Both JSON graphs have 3 key attributes:
 * `nodes` maps to a list of the graph's vertices
@@ -25,37 +50,3 @@ Both JSON graphs have 3 key attributes:
     * `links` is the number of edges in the graph
     * `counts` is the number of vertices in the graph, categorized by granularity
     * `areas` is the total area of each granularity's scope, that is, the sum of all the node areas of each granularity. Ideally, these areas should be equal so that the graph will have a consistent scope.
-
-## Installation
-
-Use Python 3.6 to run the graph construction tools.
-
-1. install `libspatialindex`
-
-    a. install `make`, `cmake`, and a compiler (`g++` or `gcc`)
-
-    b. `wget` https://github.com/libspatialindex/libspatialindex/releases/download/1.9.3/spatialindex-src-1.9.3.tar.gz
-
-    c. `tar xfvz spatialindex-src-1.9.3.tar.gz`
-
-    d. `cd spatialindex-src-1.9.3`
-
-    e. `INSTALL_PATH=/home/your_username  # set your installation path`
-
-    f. `cmake -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH .`
-
-    g. `make`
-
-    h. `make install`
-
-2. install Python packages
-
-    a. `export LD_LIBRARY_PATH=$INSTALL_PATH/lib`
-
-    b. `pip install -r requirements.txt`
-
-3. test installation
-
-    a. `export LD_LIBRARY_PATH=$INSTALL_PATH/lib`
-
-    b. `python test_installation.py`
