@@ -4,7 +4,7 @@ System Integration with Multiscale Networks
 
 Copyright 2020 The Johns Hopkins University Applied Physics Laboratory
 
-Licensed under the (MIT License)[LICENSE.md]
+Licensed under the [MIT License](LICENSE.md)
 
 Contact: simon@jhuapl.edu
 
