@@ -6,6 +6,8 @@ Copyright 2020 The Johns Hopkins University Applied Physics Laboratory
 
 Licensed under the [MIT License](LICENSE.md)
 
+[Copyrights](Third Party Copyrights.pdf) for Third Party Software
+
 Contact: simon@jhuapl.edu
 
 ## Description
