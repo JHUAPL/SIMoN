@@ -6,6 +6,8 @@ Copyright 2020 The Johns Hopkins University Applied Physics Laboratory
 
 Licensed under the MIT License
 
+Contact: simon@jhuapl.edu
+
 ## Description
 The SIMoN joint modeling framework integrates independently-designed predictive models into a cohesive system, in order to produce a unified model. While many useful models are limited to predicting only a single isolated component of a larger system, SIMoN is able to connect models together so that collectively they can provide a more complete representation of the global system and its dynamics.  By using the SIMoN software, a modeler is able to join these disparate models together in various combinations and find new insights in their data.
 
