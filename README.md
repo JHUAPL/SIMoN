@@ -29,11 +29,7 @@ Software:
 
 ## Setup
 
-SIMoN uses [Docker](https://docs.docker.com/install/) and [Compose](https://docs.docker.com/compose/install/) to run its models in separate containers. To run SIMoN, clone the repo and install these tools.
-
-The Docker containers used for the models are built from the [Ubuntu 18.04](https://hub.docker.com/_/ubuntu/) image, with the [Python 3.6](https://packages.ubuntu.com/bionic-updates/python3-dev) package layered on top.
-
-The Docker container used for the database is a [MongoDB image](https://hub.docker.com/_/mongo/).
+To run SIMoN, first install [Docker](https://docs.docker.com/install/) and [Compose](https://docs.docker.com/compose/install/).
 
 Additionally, install `make`, so that the shell commands that operate SIMoN can be executed more easily using the Makefile.
 
@@ -72,4 +68,6 @@ A new HTML file will be created. Open this file in a web browser to display the 
 
 ## [Architecture](build/README.md)
 
-SIMoN is written in Python, and uses Docker to manage its models and their integration. In order to increase flexibility and scalability, each model runs in discrete iterations (called increment steps) within its own Docker container. An additional container hosts the system's centralized Broker, which orchestrates model runs by receiving each model's data outputs via a ZeroMQ publish-subscribe messaging pattern, then redirecting the data to any models that request it. The models can then use this data as their inputs for the next incremental step in the system’s synchronized run.
+SIMoN is written in Python, and uses Docker to manage its models and their integration. In order to increase flexibility and scalability, each model runs in discrete iterations (called increment steps) within its own Docker container. An additional container hosts the system's centralized broker, which orchestrates model runs by receiving each model's data outputs via a ZeroMQ publish-subscribe messaging pattern, then redirecting the data to any models that request it. The models can then use this data as their inputs for the next incremental step in the system’s synchronized run.
+
+The Docker containers used for the broker and the models are built from the [Ubuntu 18.04](https://hub.docker.com/_/ubuntu/) image, with the [Python 3.6](https://packages.ubuntu.com/bionic-updates/python3-dev) package layered on top. The container used for the database is built from a [MongoDB image](https://hub.docker.com/_/mongo/).
