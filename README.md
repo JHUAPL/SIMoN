@@ -22,18 +22,16 @@ Supported operating systems:
  - macOS
 
 Software:
- - Python 3.6
- - Docker >= 18.09.6
- - Docker Compose >= 1.23.2
+ - [Python](https://www.python.org/downloads/) >= 3.6
+ - [Docker](https://docs.docker.com/install/) >= 18.09.6
+ - [Docker Compose](https://docs.docker.com/compose/install/) >= 1.23.2
 
 ## Setup
-SIMoN uses Docker and Compose to run its models in separate containers. To run SIMoN, clone the repo and install these tools.
-* [Docker](https://docs.docker.com/install/)
-* [Docker Compose](https://docs.docker.com/compose/install/)
+SIMoN uses [Docker](https://docs.docker.com/install/) and [Compose](https://docs.docker.com/compose/install/) to run its models in separate containers. To run SIMoN, clone the repo and install these tools.
 
-The Docker containers used for the models are built from Ubuntu 18.04 images, with the Python 3.6 and libzmq packages layered on top.
+The Docker containers used for the models are built from the [Ubuntu 18.04](https://hub.docker.com/_/ubuntu/) image, with the [Python 3.6](https://packages.ubuntu.com/bionic-updates/python3-dev) package layered on top.
 
-The Docker container used for the database is a MongoDB image.
+The Docker container used for the database is a [MongoDB image](https://hub.docker.com/_/mongo/).
 
 Additionally, install `make`, so that the shell commands that operate SIMoN can be executed more easily using the Makefile.
 
