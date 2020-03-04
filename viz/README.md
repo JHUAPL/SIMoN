@@ -16,11 +16,11 @@ For example,
 Once you've retrieved a document and saved it as a JSON file, plot the data on a choropleth map using the Python script in the `viz` directory. (Just make sure to install requirements first.)
 ```
 pip install -r requirements.txt
-python plot.py <your_mongo_doc>.json
+python plot.py --data <your_mongo_doc>.json
 ```
 For example,
 ```
-python plot.py 2025_gfdl_cm3.json
+python plot.py --data 2025_gfdl_cm3.json
 ```
 A new HTML file will be created in the `viz` directory. Open this file in a web browser to display the Bokeh visualization.
 ![evaporation](demo/2035_evaporation.png)

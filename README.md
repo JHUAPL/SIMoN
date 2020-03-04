@@ -61,7 +61,7 @@ Once you've retrieved a document and saved it as a JSON file, plot the data on a
 cd viz/
 ./export.sh <model_name> <year>
 pip install -r requirements.txt
-python plot.py <your_mongo_doc>.json
+python plot.py --data <your_mongo_doc>.json
 ```
 A new HTML file will be created. Open this file in a web browser to display the Bokeh visualization.
 ![precipitation](viz/demo/2035_precipitation.png)
