@@ -66,7 +66,7 @@ python plot.py --data <your_mongo_doc>.json
 A new HTML file will be created. Open this file in a web browser to display the Bokeh visualization.
 ![precipitation](viz/demo/2035_precipitation.png)
 
-## [Architecture](build/README.md)
+## [Architecture](broker/README.md)
 
 SIMoN is written in Python, and uses Docker to manage its models and their integration. In order to increase flexibility and scalability, each model runs in discrete iterations (called increment steps) within its own Docker container. An additional container hosts the system's centralized broker, which orchestrates model runs by receiving each model's data outputs via a ZeroMQ publish-subscribe messaging pattern, then redirecting the data to any models that request it. The models can then use this data as their inputs for the next incremental step in the system’s synchronized run.
 
