@@ -15,6 +15,7 @@ def pop_sim(init_data, num_increments):
     for key, county in init_data.items():
         population = pd.Series(county)
 
+        # https://www.statsmodels.org/stable/examples/notebooks/generated/exponential_smoothing.html#Holt's-Method
         fit1 = Holt(np.asarray(population)).fit(
             smoothing_level=0.7, smoothing_slope=0.3
         )
