@@ -1,0 +1,24 @@
+{
+  "type": "object",
+  "properties": {
+    "example_input1": {
+      "type": "object",
+      "properties":{
+              "data": {"type": "object"},
+              "agg": {"type": "string", "value": "simple_sum"},
+              "dagg": {"type": "string", "value": "distribute_by_area"},
+              "granularity": {"type": "string", "value": "state"}
+      }
+    },
+    "example_input2": {
+      "type": "object",
+      "properties":{
+              "data": {"type": "object"},
+              "agg": {"type": "string", "value": "weighted_average"},
+              "dagg": {"type": "string", "value": "distribute_identically"},
+              "granularity": {"type": "string", "value": "huc8"}
+      }
+    }
+  },
+  "required": ["example_input1", "example_input2"]
+}

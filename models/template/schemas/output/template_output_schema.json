@@ -1,0 +1,24 @@
+{
+  "type": "object",
+  "properties": {
+    "example_output1": {
+      "type": "object",
+      "properties":{
+              "data": {"type": "object"},
+              "agg": {"type": "string", "value": "simple_sum"},
+              "dagg": {"type": "string", "value": "distribute_uniformly"},
+              "granularity": {"type": "string", "value": "county"}
+      }
+    },
+    "example_output2": {
+      "type": "object",
+      "properties":{
+              "data": {"type": "object"},
+              "agg": {"type": "string", "value": "simple_average"},
+              "dagg": {"type": "string", "value": "distribute_identically"},
+              "granularity": {"type": "string", "value": "latlon"}
+      }
+    }
+  },
+  "required": ["example_output1, example_output2"]
+}

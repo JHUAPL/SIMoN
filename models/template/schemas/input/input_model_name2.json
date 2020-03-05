@@ -1,0 +1,15 @@
+{
+  "type": "object",
+  "properties": {
+    "example_input3": {
+      "type": "object",
+      "properties":{
+              "data": {"type": "object"},
+              "agg": {"type": "string", "value": "weighted_average"},
+              "dagg": {"type": "string", "value": "distribute_identically"},
+              "granularity": {"type": "string", "value": "huc8"}
+      }
+    }
+  },
+  "required": ["example_input3"]
+}
