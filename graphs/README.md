@@ -28,13 +28,13 @@ Aggregators are functions used to combine data from sibling nodes to their paren
 
 Aggregators:
 * `simple_sum`: the values of the sibling nodes are added together. The sum is the new value of their parent.
-* `simple_average`: the parent's new value is the mean of the children's values.
+* `simple_average: the parent's new value is the mean of the children's values.
 * `weighted_average: the parent's new value is the mean of the children's values, weighted by each child's geographic area.
 
 Disaggregators:
-* `distribute_identically`: the parent node's value is assigned to each one of its children.
-* `distribute_uniformly`: the parent node's value is divided evenly among each of its children.
-* `distribute_by_area`: each child node is assigned a portion of the parent's value, proportional to the child's geographic area.
+* distribute_identically: the parent node's value is assigned to each one of its children.
+* distribute_uniformly: the parent node's value is divided evenly among each of its children.
+* distribute_by_area: each child node is assigned a portion of the parent's value, proportional to the child's geographic area.
 
 ## Basic Usage
 

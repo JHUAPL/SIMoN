@@ -68,10 +68,10 @@ counties.rename(columns={'NAME_left': 'NAME'}, inplace=True)
 counties.rename(columns={'ID_right': 'parent_ID'}, inplace=True)
 
 # latitude-longitude grid squares
-latlons["parent_ID"] = "latitude-longitude"
-huc8s['parent_ID'] = 'watershed'
-nercs['parent_ID'] = 'power'
-states['parent_ID'] = 'political'
+latlons["parent_ID"] = "usa48"
+huc8s['parent_ID'] = 'usa48'
+nercs['parent_ID'] = 'usa48'
+states['parent_ID'] = 'usa48'
 
 # each shapefile should have 4 attributes: ID, NAME, parent_ID, geometry
 shapefiles = {}
@@ -184,14 +184,6 @@ def build_instance_graph(root):
                 instance_graph.add_edge(str(row['parent_ID']), ID)
     
     instance_graph.add_node(root, name=root, type=root, shape=None, area=float(country.area)/scale_factor)
-    instance_graph.add_node("latitude-longitude", name="latitude-longitude", type="none", shape=None, area=float(country.area)/scale_factor)
-    instance_graph.add_node("power", name="power", type="none", shape=None, area=float(country.area)/scale_factor)
-    instance_graph.add_node("watershed", name="watershed", type="none", shape=None, area=float(country.area)/scale_factor)
-    instance_graph.add_node("political", name="political", type="none", shape=None, area=float(country.area)/scale_factor)
-    instance_graph.add_edge(root, "power")
-    instance_graph.add_edge(root, "watershed")
-    instance_graph.add_edge(root, "political")
-    instance_graph.add_edge(root, "latitude-longitude")
     return instance_graph, instance_graph_types
 
 # build the abstract graph
