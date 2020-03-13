@@ -2,11 +2,10 @@
 
 MODEL_NAME=$1
 YEAR=$2
-DB_CONTAINER=${3:-"simon_mongodb"}
+JSON_DATA=${3:-"/"$YEAR"_"$MODEL_NAME}".json"
+DB_CONTAINER=${4:-"simon_mongodb"}
 
-JSON_DATA="/"$YEAR"_"$MODEL_NAME".json"
-
-docker start "simon_mongodb"
+docker start $DB_CONTAINER
 
 # retrieve the document from the database and save it as a JSON file
 docker exec -it $DB_CONTAINER \
