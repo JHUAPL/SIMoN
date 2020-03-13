@@ -72,30 +72,45 @@ You can also adjust the values of the `agg` and `dagg` properties to use differe
 
 ### Population (Holt's linear fit)
 The population model uses Holt's linear regression from the `statsmodel` Python package to predict population per county. It extrapolates US Census Bureau population data from 2000 to 2016 into the future, making a population prediction for each future year. The model gives more weight to the most recent historical data, so the population change from 2015 to 2016 is more significant than the change between 2000 and 2001.
+
 Config (initialization) data: historical population per county (US Census Bureau, [2000-2010](https://www.census.gov/data/datasets/time-series/demo/popest/intercensal-2000-2010-counties.html), [2010-2016](https://www.census.gov/data/datasets/time-series/demo/popest/2010s-counties-total.html), version published in 2016).
+
 Input from other models: none.
+
 Output: a dictionary that maps each county FIPS code to its population.
 
 ### Power Demand
 The power demand model aggregates county population to state population, then multiplies these values to the corresponding data for state consumption per capita, returning power demand per state.
+
 Config (initialization) data: historical population (2016) per county and state consumption per capita ([US Energy Information Administration](https://www.eia.gov/electricity/data/state/)).
+
 Input from other models: output from the population model.
+
 Output: a dictionary that maps each county FIPS code to its power demand per capita, in megawatt hours (Mwh).
 
 ### Power Supply
 The power supply model calculates power supply in the contiguous United States by assuming the power demand is met in equilibrium (supply = demand). It aggregates the counties' demand to the state level by aligning every FIPS code to its corresponding state code. This is then compared to the state power supply profiles, and the ratio of the two is used as a scaling factor for each county. This scaling factor is then multiplied to the county level demand to determine power supply per county.
+
 Config (initialization) data: historical population (2016) per county and state energy profiles ([US Energy Information Administration](https://www.eia.gov/electricity/data/state/)).
+
 Input from other models: output from the power demand model.
+
 Output: a dictionary that maps each county FIPS codes to its power supply, in megawatt hours (Mwh).
 
 ### Water Demand
 The water demand model calculates water consumption per capita per year by taking irrigation and thermoelectric, total consumptive use, fresh in Mgal/d, subtracting that value by thermoelectric recirculating, total consumptive use, fresh in Mgal/d. It divides that value by the total population for that county, then multiplies the value per day by 365 to get the value per year.
+
 Config (initialization) data: historical population (2016) per county and water use per county ([United States Geological Survey](https://www.sciencebase.gov/catalog/item/get/5af3311be4b0da30c1b245d8), 2015).
+
 Input from other models: output from the population model.
+
 Output: a dictionary that maps each county FIPS codes to its water demand, in millions of gallons (Mgal) per year.
 
 ### GFDL CM3
 The [GFDL CM3](https://www.gfdl.noaa.gov/coupled-physical-model-cm3/) climate model, published by the National Oceanic and Atmospheric Administration ([NOAA](https://www.gfdl.noaa.gov/about/)), uses representative concentration pathways to determine atmospheric conditions and consequent effects on various areas including temperature, precipitation, and evaporation. This model does not perform any of the actual calculations, but simply retrieves pre-calculated data from the config file.
+
 Config (initialization) data: RCP data for temperature, precipitation, and evaporation ([NOAA](ftp://nomads.gfdl.noaa.gov/CMIP5/output1/NOAA-GFDL/GFDL-CM3)).
+
 Input from other models: none.
+
 Output: a dictionary that maps each latitude-longitude grid square to its evaporation (mm) and precipitation (mm) values, plus a single scalar value for global temperature (Celsius).
