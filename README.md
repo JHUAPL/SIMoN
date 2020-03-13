@@ -54,22 +54,18 @@ Log out and back in for this to take effect.
 
 ## [Visualization](viz/README.md)
 
-SIMoN stores all of the data outputs from the models as documents in a Mongo database (the `simon_mongodb` container).
-
-You can retrieve a document and save it as a JSON file using the `export.sh` bash script in the `viz` directory.
-
-Once you've retrieved a document and saved it as a JSON file, plot the data on a choropleth map using the `plot.py` script in the `viz` directory. (Just make sure to pip install `requirements.txt` first.)
+Use the scripts in the `viz` directory to create a choropleth map visualization of the model data.
 ```
 cd viz/
-./export.sh <model_name> <year>
+./export.sh <model_name> <year> <doc_name>.json
 pip install -r requirements.txt
-python plot.py --data <your_mongo_doc>.json
+python plot.py --data <doc_name>.json
 ```
 A new HTML file will be created. Open this file in a web browser to display the Bokeh visualization.
 ![precipitation](viz/demo/2035_precipitation.png)
 
 ## [Architecture](broker/README.md)
 
-SIMoN is written in Python, and uses Docker to manage its models and their integration. In order to increase flexibility and scalability, each model runs in discrete iterations (called increment steps) within its own Docker container. An additional container hosts the system's centralized broker, which orchestrates model runs by receiving each model's data outputs via a ZeroMQ publish-subscribe messaging pattern, then redirecting the data to any models that request it. The models can then use this data as their inputs for the next incremental step in the system’s synchronized run.
+SIMoN is written in Python, and uses Docker to manage its models and their integration. Each model runs in its own Docker container. An additional container hosts the system's centralized broker, which orchestrates model runs and shares data among models using a ZeroMQ publish-subscribe messaging pattern.
 
 The Docker containers used for the broker and the models are built from the [Ubuntu 18.04](https://hub.docker.com/_/ubuntu/) image, with the [Python 3.6](https://packages.ubuntu.com/bionic-updates/python3-dev) package layered on top. The container used for the database is built from a [MongoDB image](https://hub.docker.com/_/mongo/).

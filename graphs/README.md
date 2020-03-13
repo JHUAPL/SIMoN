@@ -1,23 +1,40 @@
 # SIMoN Granularity Graph Tool
 
-Build the granularity graphs used for data translation in the SIMoN software application.
-
-Copyright 2020 The Johns Hopkins University Applied Physics Laboratory
-Licensed under the MIT License
-
-## Description
-
-A key difficulty in combining models is resolving their data dependencies and discrepancies. By using the SIMoN software, a modeler is able to join models with disparate geographic definitions together in various combinations, allowing models to run together and exchange data that have heterogeneous definitions of geography.
+This tool constructs the granularity graphs used for data translation in the SIMoN software application.
 
 ## Granularities
 
+A key difficulty in combining models is resolving their data dependencies and discrepancies. By using the SIMoN software, a modeler is able to join models with disparate geographic definitions together in various combinations, allowing models to run together and exchange data that have heterogeneous definitions of geography.
+
 SIMoN currently integrates models of population, power systems, water systems, and climate change. These domains each have their own hierarchies of geography, which include political, topographical, regulatory, and latitude-longitude grid boundaries.
 
-In order to translate data from its models across granularities, SIMoN uses shapefiles to define rigorous geographies in a partially ordered set of geographic partitions (e.g., counties, watersheds, power regions, and latitude-longitude squares). SIMoN creates a corresponding directed acyclic network graph representing all the granularities, their corresponding entities, and their relationships to each other. The individual models feed each other updated data inputs at synchronized time intervals, and traverse the network graph to translate their data from one granularity to another. A sample granularity graph is provided, but modelers can extend it or create a graph of their own, by modifying and using the `graphs/build.py` script.
+In order to translate data from its models across granularities, SIMoN uses shapefiles to define rigorous geographies in a partially ordered set of geographic partitions (e.g., counties, watersheds, power regions, and latitude-longitude squares). The sample shapefiles provided in the `graphs/shapefiles` directory were clipped to the land boundary of the contiguous United States, in order to have consistent scope. The geometries were compressed / simplified using a distance-based method (the Douglas-Peucker algorithm) with a tolerance of 1 kilometer. They use [EPSG:3085](https://epsg.io/3085-1901) NAD83(HARN) / Texas Centric Albers Equal Area as their coordinate reference system.
+
+SIMoN creates a corresponding directed acyclic network graph representing all the granularities, their corresponding entities, and their relationships to each other. The individual models feed each other updated data inputs at synchronized time intervals, and traverse the network graph to translate their data from one granularity to another. A sample granularity graph is provided, but modelers can extend it or create a graph of their own, by modifying and using the `graphs/build.py` script.
+
+The granularities in the provided granularity graph are:
+    * `usa48` (a single region for the contiguous United States)
+    * `state` (49 regions: the lower 48 states plus Washington, DC)
+    * `county` (3108 counties, including Washington, DC)
+    * `nerc` (22 North American Electric Reliability Corporation regions)
+    * `huc8` (2119 HUC 8 regions)
+    * `latlon` (209 latitude-longitude grid squares)
 
 ## Aggregators and Disaggregators
 
 The modeler can choose transformation functions, called aggregators and disaggregators, to translate data between compatible geographic definitions in various ways. These aggregators and disaggregators must conform to a set of mathematical axioms, including a partial inverse property, which are designed to create a provable notion of data consistency and reduce the possibility of self-propagating errors.
+
+Aggregators are functions used to combine data from sibling nodes to their parent node. Disaggregators are functions used to distribute data from a node to its children.
+
+Aggregators:
+* `simple_sum`: the values of the sibling nodes are added together. The sum is the new value of their parent.
+* `simple_average: the parent's new value is the mean of the children's values.
+* `weighted_average: the parent's new value is the mean of the children's values, weighted by each child's geographic area.
+
+Disaggregators:
+* distribute_identically: the parent node's value is assigned to each one of its children.
+* distribute_uniformly: the parent node's value is divided evenly among each of its children.
+* distribute_by_area: each child node is assigned a portion of the parent's value, proportional to the child's geographic area.
 
 ## Basic Usage
 
@@ -29,7 +46,7 @@ This will start the `simon-graph` Docker container, and create an abstract graph
 
 ## Advanced Usage
 
-Adjust parameters in the `graphs/config.json` file.
+Adjust these parameters in the `graphs/config.json` file:
 
 * `projection` is the EPSG coordinate reference system code that all of the shapefile polygons will be translated to, in order to ensure consistency. For the most precise results, use the original EPSG of the shapefiles.
 * `scale_factor` divides the area of each shapefile's polygons by a scalar, in order to use better units. For example, the provided shapefiles have length units of meters and area units of square meters. The default scale_factor is 1 million, in order to translate the area unit of the provided shapefiles from square meters to square kilometers. Change the scale factor to 1 to preserve the original units.
