@@ -22,19 +22,17 @@ Supported operating systems:
  - Linux and macOS
    - install [Docker](https://docs.docker.com/install/) and [Docker Compose](https://docs.docker.com/compose/install/)
  - Windows 10
-   - install [Docker Desktop for Windows](https://hub.docker.com/editions/community/docker-ce-desktop-windows/)
+   - install [Docker Desktop for Windows](https://hub.docker.com/editions/community/docker-ce-desktop-windows/) (includes Compose)
 
 ## Setup
 
-To run SIMoN, first install [Docker](https://docs.docker.com/install/) and [Compose](https://docs.docker.com/compose/install/).
+To run SIMoN, first install Docker and Compose for your operating system. Additionally, install `make`, so that the shell commands that operate SIMoN can be executed more easily using the Makefile.
 
-Additionally, install `make`, so that the shell commands that operate SIMoN can be executed more easily using the Makefile.
-
-The Docker commands in the provided scripts assume that you are a privileged user. To use Docker as a non-root user, add your user to the `docker` group:
+The Docker commands in the provided scripts assume that you are a privileged user. To add your user to the `docker` group and use Docker as a non-root user (in Linux or macOS):
 ```
 sudo usermod -aG docker <your_username>
 ```
-Log out and back in for this to take effect.
+You may need to log out and back in for this to take effect.
 
 ## [Usage](models/README.md)
 
