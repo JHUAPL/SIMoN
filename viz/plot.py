@@ -159,7 +159,7 @@ def plot_mongo_doc(data, shapefile_dir=".", projection=4326, plot_width=1200, pl
 
 
 @click.command()
-@click.option("--data", type=click.Path(), required=True, help="path to the JSON file (a dict mapping geographic IDs to numerical values)")
+@click.option("--data", type=click.Path(), required=True, help="path to the JSON file created by export.sh")
 @click.option("--shapefile_dir", type=click.Path(), default=os.path.join(os.path.dirname(__file__), os.pardir, "graphs", "shapefiles"), help="path to the directory of shapefiles")
 @click.option("--projection", default=4326, help="coordinate reference system to use for plotting")
 @click.option("--width", default=1200, help="pixel width of the plot")
