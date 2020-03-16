@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: build-model up all stop clean purge
+.PHONY: build-model up all stop clean purge graph
 
 build-model:
 	docker build -t simon-model:latest -f build/Dockerfile .
