@@ -17,7 +17,7 @@ will retrieve the annual data that the GFDL CM3 model projected for the year 203
 
 ## Plot data (requires [Python 3.6+](https://www.python.org/downloads/))
 
-Once you've retrieved a document and saved it as a JSON file, plot the data on a choropleth map using the `plot.py` script in the `viz` directory. (Just make sure to pip install `requirements.txt` first.)
+Once you've retrieved a document and saved it as a JSON file, plot the data on a choropleth map using the `plot.py` script in the `viz` directory. (You can also use the `Plot.ipynb` Jupyter notebook.) Just make sure to pip install `requirements.txt` first.
 ```
 pip install -r requirements.txt
 python plot.py --data <your_mongo_doc>.json
