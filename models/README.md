@@ -19,7 +19,7 @@ The SIMoN framework is designed to be extensible and flexible, providing tools f
 
     To use a different set of models, see the instructions on how to "Add a new model" and "Remove a model" below.
 
-2. Optionally, adjust the models' output schemas, in order to change the granularity of their output data. Open the JSON file in a model's `schemas/output` directory with a text editor. Each variable in the schema has a `granularity` property. Change the `value` field of this property to one of these recognized [granularities](../graphs/README.md) (all lowercase):
+2. Optionally, adjust the models' output schemas, in order to change the granularity of their output data. Open the JSON file in a model's `schemas/output` directory with a text editor. Each variable in the schema has a `granularity` property. Change the `value` field of this property to one of these recognized [granularities](../graphs/README.md#granularities) (all lowercase):
     * usa48
     * state
     * county
@@ -27,7 +27,7 @@ The SIMoN framework is designed to be extensible and flexible, providing tools f
     * huc8
     * latlon
 
-You can also adjust the values of the `agg` and `dagg` properties to use different [aggregators and disaggregators](../graphs/README.md) to perform granularity translations.
+You can also adjust the values of the `agg` and `dagg` properties to use different [aggregators and disaggregators](../graphs/README.md#aggregators-and-disaggregators) to perform granularity translations.
 
 ## Add a new model
 
@@ -45,11 +45,11 @@ You can also adjust the values of the `agg` and `dagg` properties to use differe
             * any additional code that your model uses
     * `schemas/input/` stores JSON schemas that incoming JSON data messages must validate against. SIMoN uses the `jsonschema` Python package to validate the data messages against the schemas. There should be one input schema JSON file for each of the other models that this model receives data from. Adjust the `granularity` property in the input schema so that the input data that arrives in the model's inner wrapper will be in the granularity that is needed for your custom `my_module` functions to work.
 	* `*.json`
-        * granularity: specifies the granularity of input data that this model needs. SIMoN will translate incoming data to this granularity before sending it to the model's inner wrapper. If your inner wrapper needs the data to be in a different granularity in order to work with it, adjust the granularity value in the input schema accordingly.
+        * granularity: specifies the granularity of input data that this model needs. The model's outer wrapper will translate incoming data to this granularity before sending it to the model's inner wrapper. If your inner wrapper needs the data to be in a different granularity in order to work with it, adjust the granularity value in the input schema accordingly.
     * `schemas/output/` stores JSON schemas that outgoing JSON data messages must validate against. SIMoN uses the `jsonschema` Python package to validate the data messages against the schemas.
         * `*.json`
-        * granularity: specifies the granularity of data that this model will output. SIMoN will translate outgoing data to this granularity after receiving it from the model's inner wrapper.
-    * `config/` stores JSON objects with the initial data and parameters needed to bootstrap the model and run its first time step.
+        * granularity: specifies the granularity of data that this model will output. The model's outer wrapper will translate outgoing data to this granularity after receiving it from the model's inner wrapper.
+    * `config/` stores JSON objects with the initial data and parameters needed to bootstrap the model and perform the initial increment step.
         * `*.json`
 4.  Once you have a complete set of models where all dependencies are satisfied, add the unique name of each of the models to the "models" list in `broker/config.json`.
 5.  Create an entry for each model in the "services" section in `build/docker-compose.yml` and specify the path to each model's directory.
@@ -63,10 +63,10 @@ You can also adjust the values of the `agg` and `dagg` properties to use differe
 ## Remove a model
 
 1.  Before removing a model from SIMoN, make sure that no other models rely on it for their dependencies. For example, the `gfdl_cm3` model can safely be removed because no other models depend on it for their data inputs. However, the `power_demand` model cannot be removed without also removing the `power_supply` model, which relies on `power_demand` as an input.
-2.  Remove the name of the model from the "models" list in `broker/config.json`.
-3.  Remove the entry for the model in the "services" section of `build/docker-compose.yml`.
+2.  Remove the name of the model from the `models` list in `broker/config.json`.
+3.  Remove the entry for the model in the `services` section of `build/docker-compose.yml`.
 4.  The model will no longer be included in future SIMoN runs. Note, however, that the model's dedicated directory is left intact, so that it can be added back in easily.
-5.  To add the model back into SIMoN, simply repeat steps 2 and 3 from "Add a new model."
+5.  To add the model back into SIMoN, simply repeat steps 4 and 5 from "Add a new model."
 
 ## Example models
 

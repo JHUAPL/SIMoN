@@ -19,15 +19,10 @@ To address this challenge, the SIMoN modeling framework integrates independently
 ## Requirements
 
 Supported operating systems:
- - Linux
- - macOS
+ - Linux and macOS
+   - install [Docker](https://docs.docker.com/install/) and [Docker Compose](https://docs.docker.com/compose/install/)
  - Windows 10
-
-Software:
- - [Python](https://www.python.org/downloads/) >= 3.6
- - [Docker](https://docs.docker.com/install/) >= 18.09.6
- - [Docker Compose](https://docs.docker.com/compose/install/) >= 1.23.2
- - [Docker Desktop for Windows](https://hub.docker.com/editions/community/docker-ce-desktop-windows/)
+   - install [Docker Desktop for Windows](https://hub.docker.com/editions/community/docker-ce-desktop-windows/)
 
 ## Setup
 

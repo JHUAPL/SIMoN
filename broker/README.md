@@ -14,11 +14,11 @@ The Inner Wrappers are interfaces tailored to each model, and support the models
 
 Adjust parameters in the `build/config.json` file.
 
-    * `mongo_port` is the port that the MongoDB container will use. The default Mongo port is 27017.
-    * `boot_timer` is the number of seconds that the broker will wait for all models to initialize, before it sends the shutdown signal. Try extending this time if models will take longer to load and process their configuration data in the custom `configure()` method in their inner wrapper.
-    * `watchdog_timer` is the number of seconds that the broker will wait to receive a status message from a model, before it sends the shutdown signal. If a model crashes, the broker will wait for this number of seconds before stopping the SIMoN run.
-    * `max_incstep` is the number of increments that the SIMoN run should perform before closing down.
-    * `initial_year` is the year corresponding to the configuration data (increment step 0).*
-    * `models` lists the ID / unique name of each model that will be included in the SIMoN run.
+  * `mongo_port` is the port that the MongoDB container will use. The default Mongo port is 27017.
+  * `boot_timer` is the number of seconds that the broker will wait for all models to initialize, before it sends the shutdown signal. Try extending this time if models will take longer to load and process their configuration data in the custom `configure()` method in their inner wrapper.
+  * `watchdog_timer` is the number of seconds that the broker will wait to receive a status message from a model, before it sends the shutdown signal. If a model crashes, the broker will wait for this number of seconds before stopping the SIMoN run.
+  * `max_incstep` is the number of increments that the SIMoN run should perform before closing down.
+  * `initial_year` is the year corresponding to the configuration data (increment step 0).
+  * `models` lists the ID / unique name of each model that will be included in the SIMoN run.
 
-* Because SIMoN runs predictive models, each increment step, and the data published at that increment step, corresponds to a point in time in the future. Currently, each increment corresponds to a year, since the data in the example models is annual. The `initial_year` parameter is used to specify the initial year assigned to increment step 0, and translate each subsequent increment step to its corresponding year. For models that do not have annual data, the reported "year" can be ignored by the user. In the future, SIMoN may be expanded to support multiple definitions of time (such as year, month, and fiscal quarter), just like it currently supports multiple definitions of geography (such as state, county, and watershed).
+Because SIMoN runs predictive models, each increment step, and the data published at that increment step, corresponds to a point in time in the future. Currently, each increment corresponds to a year, since the data in the example models is annual. The `initial_year` parameter is used to specify the year assigned to the initial increment step 0, and translates each subsequent increment step to its corresponding year. For models that do not have annual data, the reported "year" can be ignored by the user. In the future, SIMoN may be expanded to support multiple definitions of time (such as year, month, and fiscal quarter), just like it currently supports multiple definitions of geography.
