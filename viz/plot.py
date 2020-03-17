@@ -15,6 +15,7 @@ import json
 from bokeh.io import show
 from bokeh.models import LogColorMapper
 from bokeh.palettes import Blues256 as palette
+
 palette.reverse()
 from bokeh.plotting import figure, output_file, save
 
@@ -24,13 +25,14 @@ from bokeh.plotting import figure, output_file, save
 # https://automating-gis-processes.github.io/2016/Lesson5-interactive-map-bokeh.html
 # https://discourse.bokeh.org/t/mapping-europe-with-bokeh-using-geopandas-and-handling-multipolygons/2571
 
+
 def get_xy_coords(geometry, coord_type):
     """
     Returns either x or y coordinates from geometry coordinate sequence. Used with Polygon geometries.
     """
-    if coord_type == 'x':
+    if coord_type == "x":
         return list(geometry.coords.xy[0])
-    elif coord_type == 'y':
+    elif coord_type == "y":
         return list(geometry.coords.xy[1])
 
 
@@ -49,7 +51,10 @@ def multi_geom_handler(multi_geometry, coord_type):
     Bokeh documentation regarding the Multi-geometry issues can be found here (it is an open issue).
     https://github.com/bokeh/bokeh/issues/2321
     """
-    all_poly_coords = [np.append(get_poly_coords(part, coord_type), np.nan) for part in multi_geometry]
+    all_poly_coords = [
+        np.append(get_poly_coords(part, coord_type), np.nan)
+        for part in multi_geometry
+    ]
     coord_arrays = np.concatenate(all_poly_coords)
     return coord_arrays
 
@@ -58,46 +63,58 @@ def get_coords(row, coord_type):
     """
     Returns the coordinates ('x' or 'y') of edges of a Polygon exterior
     """
-    poly_type = type(row['geometry'])
+    poly_type = type(row["geometry"])
 
     # get coords from a single polygon
     if poly_type == Polygon:
-        return get_poly_coords(row['geometry'], coord_type)
+        return get_poly_coords(row["geometry"], coord_type)
     # get coords from multiple polygons
     elif poly_type == MultiPolygon:
-        return multi_geom_handler(row['geometry'], coord_type)
+        return multi_geom_handler(row["geometry"], coord_type)
 
 
 # plot data on the shapefile
 # references:
 # https://docs.bokeh.org/en/latest/docs/gallery/texas.html
-def plot_mongo_doc(data, shapefile_dir=".", projection=4326, plot_width=1200, plot_height=800, show_fig=False, save_fig=True):
+def plot_mongo_doc(
+    data,
+    shapefile_dir=".",
+    projection=4326,
+    plot_width=1200,
+    plot_height=800,
+    show_fig=False,
+    save_fig=True,
+):
 
     df = {}
     geographies = {}
-    datasets = data['payload'].keys()
+    datasets = data["payload"].keys()
 
     for dataset in datasets:
 
-        granularity = data['payload'][dataset]['granularity']
+        granularity = data["payload"][dataset]["granularity"]
         if not granularity:
-            print(f"skipping {dataset} (does not have a granularity specified)")
+            print(
+                f"skipping {dataset} (does not have a granularity specified)"
+            )
             continue
         else:
             print(f"plotting {dataset} (granularity: {granularity})")
-        instance_col_name = 'ID'
-        year = data['year']
+        instance_col_name = "ID"
+        year = data["year"]
 
         df[dataset] = pd.DataFrame.from_dict(
-            data['payload'][dataset]['data'],
-            orient='index',
+            data["payload"][dataset]["data"],
+            orient="index",
             columns=[f"{dataset}_value"],
         )
         df[dataset][instance_col_name] = df[dataset].index
 
         shapefile_path = f"{shapefile_dir}/{granularity}.shp"
         if os.path.exists(shapefile_path):
-            geographies[dataset] = read_file(shapefile_path).to_crs(epsg=projection)
+            geographies[dataset] = read_file(shapefile_path).to_crs(
+                epsg=projection
+            )
         else:
             print(f"{shapefile_path} not found, skipping")
             continue
@@ -108,17 +125,17 @@ def plot_mongo_doc(data, shapefile_dir=".", projection=4326, plot_width=1200, pl
         # reset the color palette
         color_mapper = LogColorMapper(palette=palette)
 
-        geographies[dataset]['x'] = geographies[dataset].apply(
-            get_coords, coord_type='x', axis=1
+        geographies[dataset]["x"] = geographies[dataset].apply(
+            get_coords, coord_type="x", axis=1
         )
-        geographies[dataset]['y'] = geographies[dataset].apply(
-            get_coords, coord_type='y', axis=1
+        geographies[dataset]["y"] = geographies[dataset].apply(
+            get_coords, coord_type="y", axis=1
         )
 
         plot_data = dict(
-            x=geographies[dataset]['x'].tolist(),
-            y=geographies[dataset]['y'].tolist(),
-            name=geographies[dataset]['ID'].tolist(),
+            x=geographies[dataset]["x"].tolist(),
+            y=geographies[dataset]["y"].tolist(),
+            name=geographies[dataset]["ID"].tolist(),
             value=geographies[dataset][f"{dataset}_value"].tolist(),
         )
 
@@ -142,10 +159,10 @@ def plot_mongo_doc(data, shapefile_dir=".", projection=4326, plot_width=1200, pl
         fig.hover.point_policy = "follow_mouse"
 
         fig.patches(
-            'x',
-            'y',
+            "x",
+            "y",
             source=plot_data,
-            fill_color={'field': 'value', 'transform': color_mapper},
+            fill_color={"field": "value", "transform": color_mapper},
             fill_alpha=0.7,
             line_color="white",
             line_width=0.5,
@@ -159,13 +176,33 @@ def plot_mongo_doc(data, shapefile_dir=".", projection=4326, plot_width=1200, pl
 
 
 @click.command()
-@click.option("--data", type=click.Path(), required=True, help="path to the JSON file created by export.sh")
-@click.option("--shapefile_dir", type=click.Path(), default=os.path.join(os.path.dirname(__file__), os.pardir, "graphs", "shapefiles"), help="path to the directory of shapefiles")
-@click.option("--projection", default=4326, help="coordinate reference system to use for plotting")
+@click.option(
+    "--data",
+    type=click.Path(),
+    required=True,
+    help="path to the JSON file created by export.sh",
+)
+@click.option(
+    "--shapefile_dir",
+    type=click.Path(),
+    default=os.path.join(
+        os.path.dirname(__file__), os.pardir, "graphs", "shapefiles"
+    ),
+    help="path to the directory of shapefiles",
+)
+@click.option(
+    "--projection",
+    default=4326,
+    help="coordinate reference system to use for plotting",
+)
 @click.option("--width", default=1200, help="pixel width of the plot")
 @click.option("--height", default=800, help="pixel height of the plot")
-@click.option("--show", type=click.BOOL, default=False, help="display the plot")
-@click.option("--save", type=click.BOOL, default=True, help="write the plot to a file")
+@click.option(
+    "--show", type=click.BOOL, default=False, help="display the plot"
+)
+@click.option(
+    "--save", type=click.BOOL, default=True, help="write the plot to a file"
+)
 def main(data, shapefile_dir, projection, width, height, show, save):
 
     # load the data
@@ -173,7 +210,15 @@ def main(data, shapefile_dir, projection, width, height, show, save):
         data_dict = json.load(f)
 
     # plot the data
-    plot_mongo_doc(data_dict, shapefile_dir=shapefile_dir, projection=projection, plot_width=width, plot_height=height, show_fig=show, save_fig=save)
+    plot_mongo_doc(
+        data_dict,
+        shapefile_dir=shapefile_dir,
+        projection=projection,
+        plot_width=width,
+        plot_height=height,
+        show_fig=show,
+        save_fig=save,
+    )
 
 
 if __name__ == "__main__":

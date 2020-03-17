@@ -40,18 +40,18 @@ class Graph(nx.DiGraph):
         }
 
         # build the graph by loading it from the JSON file
-        with open(filename, mode='r') as json_file:
+        with open(filename, mode="r") as json_file:
             data = json.load(json_file)
-        for node in data['nodes']:
+        for node in data["nodes"]:
             self.add_node(
-                node['id'],
-                name=node.get('name'),
-                type=node.get('type'),
-                shape=node.get('shape'),
-                area=node.get('area'),
+                node["id"],
+                name=node.get("name"),
+                type=node.get("type"),
+                shape=node.get("shape"),
+                area=node.get("area"),
             )
-        for edge in data['links']:
-            self.add_edge(edge['source'], edge['target'])
+        for edge in data["links"]:
+            self.add_edge(edge["source"], edge["target"])
 
     def simple_sum(self, values, *args):
         """
@@ -81,19 +81,19 @@ class Graph(nx.DiGraph):
 
         # get the area of the parent instance node
         for ancestor in ancestors:
-            if self.nodes[ancestor]['type'] == parent_granularity:
-                parent_area = self.nodes[ancestor]['area']
+            if self.nodes[ancestor]["type"] == parent_granularity:
+                parent_area = self.nodes[ancestor]["area"]
                 break
         else:
             logging.error(
                 f"none of the nodes in {ancestors} have granularity {parent_granularity}"
             )
             parent_area = sum(
-                [self.nodes[value[0]]['area'] for value in values]
+                [self.nodes[value[0]]["area"] for value in values]
             )
 
         return (
-            sum([value[1] * self.nodes[value[0]]['area'] for value in values])
+            sum([value[1] * self.nodes[value[0]]["area"] for value in values])
             / parent_area
         )
 
@@ -108,7 +108,7 @@ class Graph(nx.DiGraph):
         children = [
             child
             for child in self.successors(instance)
-            if self.nodes[child]['type'] == child_granularity
+            if self.nodes[child]["type"] == child_granularity
         ]
         mean = value / len(children) if children else 0
         distributed = {child: mean for child in children}
@@ -125,7 +125,7 @@ class Graph(nx.DiGraph):
         children = [
             child
             for child in self.successors(instance)
-            if self.nodes[child]['type'] == child_granularity
+            if self.nodes[child]["type"] == child_granularity
         ]
         distributed = {child: value for child in children}
         return distributed
@@ -141,7 +141,7 @@ class Graph(nx.DiGraph):
         children = [
             child
             for child in self.successors(instance)
-            if self.nodes[child]['type'] == child_granularity
+            if self.nodes[child]["type"] == child_granularity
         ]
         parent_area = self.nodes[instance]["area"]
         distributed = {
@@ -163,7 +163,7 @@ class OuterWrapper(ABC):
 
         self.model_id = model_id
         self.num_expected_inputs = num_expected_inputs
-        self.status = 'booting'
+        self.status = "booting"
         self.incstep = 1
         self.initial_year = -1
         self.increment_flag = False
@@ -182,24 +182,24 @@ class OuterWrapper(ABC):
         self.output_schemas = None
         self.validated_schemas = {}
         self.generic_output_schema = (
-            '{'
+            "{"
             '  "type": "object",'
             '  "patternProperties": {'
             '    ".*": {'
             '      "type": "object", '
             '      "properties": {'
             '         "data": {"type": "object"}, "granularity": {"type": ["string", "null"]}'
-            '      },'
+            "      },"
             '      "required": ["data", "granularity"]'
-            '    }'
-            '  }'
-            '}'
+            "    }"
+            "  }"
+            "}"
         )
 
         logging.basicConfig(
             level=logging.INFO,
             stream=sys.stdout,
-            format='%(asctime)s - %(levelname)s - %(filename)s:%(funcName)s:%(lineno)d - %(message)s',
+            format="%(asctime)s - %(levelname)s - %(filename)s:%(funcName)s:%(lineno)d - %(message)s",
         )
 
     def meet(self, a, b):
@@ -233,7 +233,7 @@ class OuterWrapper(ABC):
                 parent = [
                     parent
                     for parent in self.instance_graph.predecessors(instance)
-                    if self.instance_graph.nodes[parent]['type'] == path[1]
+                    if self.instance_graph.nodes[parent]["type"] == path[1]
                 ]
                 assert len(parent) == 1
                 parents[parent[0]].append((instance, value))
@@ -342,7 +342,7 @@ class OuterWrapper(ABC):
         """
 
         schemas = {}
-        for schema in glob.glob(f'{dir_path}/*.json'):
+        for schema in glob.glob(f"{dir_path}/*.json"):
             with open(schema) as schema_file:
                 file_name = os.path.splitext(os.path.basename(schema))[0]
                 schemas[file_name] = json.load(schema_file)
@@ -422,12 +422,12 @@ class OuterWrapper(ABC):
         self.increment_flag = False
         for schema, data in results.items():
             data_msg = {}
-            data_msg['schema'] = schema
-            data_msg['payload'] = data
-            data_msg['signal'] = 'data'
-            data_msg['source'] = self.model_id
-            data_msg['incstep'] = self.incstep
-            data_msg['year'] = self.incstep + self.initial_year
+            data_msg["schema"] = schema
+            data_msg["payload"] = data
+            data_msg["signal"] = "data"
+            data_msg["source"] = self.model_id
+            data_msg["incstep"] = self.incstep
+            data_msg["year"] = self.incstep + self.initial_year
             self.pub_queue.put(data_msg)
         logging.info(
             f"finished increment {self.incstep}, year {self.incstep + self.initial_year}"
@@ -455,33 +455,33 @@ class OuterWrapper(ABC):
             if self.connected_to_broker:
                 if self.increment_flag:
                     # waiting for the increment to finish
-                    self.status = 'incrementing'
+                    self.status = "incrementing"
                 else:
                     if self.incstep == 1:
                         # kickstart the model for the first increment
-                        self.status = 'ready'
+                        self.status = "ready"
 
                     elif (
                         len(self.validated_schemas) == self.num_expected_inputs
                     ):
                         # all input messages have been received and all input schemas have been validated
-                        self.status = 'ready'
+                        self.status = "ready"
 
                     else:
                         # still waiting for messages from other models
-                        self.status = 'waiting'
+                        self.status = "waiting"
             else:
-                self.status = 'booting'
+                self.status = "booting"
 
             message = {}
-            message['source'] = self.model_id
-            message['id'] = count
-            message['time'] = time.time()
-            message['date'] = time.ctime()
-            message['signal'] = 'status'
-            message['incstep'] = self.incstep
-            message['year'] = self.incstep + self.initial_year
-            message['status'] = self.status
+            message["source"] = self.model_id
+            message["id"] = count
+            message["time"] = time.time()
+            message["date"] = time.ctime()
+            message["signal"] = "status"
+            message["incstep"] = self.incstep
+            message["year"] = self.incstep + self.initial_year
+            message["status"] = self.status
             self.pub_queue.put(message)
 
             logging.debug(json.dumps(message))
@@ -497,7 +497,7 @@ class OuterWrapper(ABC):
         # connect to zmq
         sock = context.socket(zmq.PUB)
         sock.setsockopt(zmq.LINGER, 1000)
-        sock.connect('tcp://broker:5555')
+        sock.connect("tcp://broker:5555")
 
         while not event.is_set():
 
@@ -508,7 +508,7 @@ class OuterWrapper(ABC):
                 continue
 
             # send status messages
-            if message.get('signal') == 'status':
+            if message.get("signal") == "status":
                 sock.send_json(message)
                 continue
 
@@ -516,29 +516,31 @@ class OuterWrapper(ABC):
             matched = []
             for name, schema in self.output_schemas.items():
                 try:
-                    validate(message['payload'], schema)
-                    logging.info(f"validated outgoing message from {message['source']}")
+                    validate(message["payload"], schema)
+                    logging.info(
+                        f"validated outgoing message from {message['source']}"
+                    )
                     matched.append(schema)
 
                     # translate each data variable to output schema's granularity
-                    for item in message['payload']:
+                    for item in message["payload"]:
 
                         # get current granularity from the data message
-                        src_gran = message['payload'][item]['granularity']
+                        src_gran = message["payload"][item]["granularity"]
 
                         # get granularity and translation functions from the schema
-                        dest_gran = schema['properties'][item]['properties'][
-                            'granularity'
-                        ].get('value', src_gran)
+                        dest_gran = schema["properties"][item]["properties"][
+                            "granularity"
+                        ].get("value", src_gran)
                         agg = (
-                            schema['properties'][item]['properties']
-                            .get('agg', {})
-                            .get('value')
+                            schema["properties"][item]["properties"]
+                            .get("agg", {})
+                            .get("value")
                         )
                         dagg = (
-                            schema['properties'][item]['properties']
-                            .get('dagg', {})
-                            .get('value')
+                            schema["properties"][item]["properties"]
+                            .get("dagg", {})
+                            .get("value")
                         )
 
                         # translate the data and update the data message
@@ -546,15 +548,15 @@ class OuterWrapper(ABC):
                             f"validating output: message from {name}, translating variable {item}, {src_gran} -> {dest_gran}"
                         )
                         data = self.translate(
-                            message['payload'][item]['data'],
+                            message["payload"][item]["data"],
                             src_gran,
                             dest_gran,
                             item,
                             agg_name=agg,
                             disagg_name=dagg,
                         )
-                        message['payload'][item]['data'] = data
-                        message['payload'][item]['granularity'] = dest_gran
+                        message["payload"][item]["data"] = data
+                        message["payload"][item]["granularity"] = dest_gran
 
                 except ValidationError:
                     logging.debug("validation error")
@@ -591,7 +593,7 @@ class OuterWrapper(ABC):
         sock.setsockopt(zmq.SUBSCRIBE, b"")
         sock.setsockopt(zmq.RCVTIMEO, 0)
         sock.setsockopt(zmq.LINGER, 1000)
-        sock.connect('tcp://broker:5556')
+        sock.connect("tcp://broker:5556")
 
         while not event.is_set():
             try:
@@ -600,10 +602,10 @@ class OuterWrapper(ABC):
                 continue
             logging.debug(json.dumps(message))
 
-            signal = message.get('signal')
-            if signal == 'status' and message.get('source') == 'broker':
+            signal = message.get("signal")
+            if signal == "status" and message.get("source") == "broker":
                 self.broker_queue.put(message)
-            elif signal == 'data':
+            elif signal == "data":
                 if not self.insert_data_message(message):
                     event.set()
             else:
@@ -625,7 +627,7 @@ class OuterWrapper(ABC):
         matched = []
         for name, schema in self.input_schemas.items():
             try:
-                validate(message['payload'], schema)
+                validate(message["payload"], schema)
                 logging.info(
                     f"schema {name} validated incoming message from {message['source']}"
                 )
@@ -638,24 +640,24 @@ class OuterWrapper(ABC):
                     matched.append(schema)
 
                     # translate each data variable to input schema's granularity
-                    for item in message['payload']:
+                    for item in message["payload"]:
 
                         # get current granularity from the data message
-                        src_gran = message['payload'][item]['granularity']
+                        src_gran = message["payload"][item]["granularity"]
 
                         # get granularity and translation functions from the schema
-                        dest_gran = schema['properties'][item]['properties'][
-                            'granularity'
-                        ].get('value', src_gran)
+                        dest_gran = schema["properties"][item]["properties"][
+                            "granularity"
+                        ].get("value", src_gran)
                         agg = (
-                            schema['properties'][item]['properties']
-                            .get('agg', {})
-                            .get('value')
+                            schema["properties"][item]["properties"]
+                            .get("agg", {})
+                            .get("value")
                         )
                         dagg = (
-                            schema['properties'][item]['properties']
-                            .get('dagg', {})
-                            .get('value')
+                            schema["properties"][item]["properties"]
+                            .get("dagg", {})
+                            .get("value")
                         )
 
                         # translate the data and update the data message
@@ -663,17 +665,17 @@ class OuterWrapper(ABC):
                             f"validating input: message from {name}, translating variable {item}, {src_gran} -> {dest_gran}"
                         )
                         data = self.translate(
-                            message['payload'][item]['data'],
+                            message["payload"][item]["data"],
                             src_gran,
                             dest_gran,
                             item,
                             agg_name=agg,
                             disagg_name=dagg,
                         )
-                        message['payload'][item]['data'] = data
-                        message['payload'][item]['granularity'] = dest_gran
+                        message["payload"][item]["data"] = data
+                        message["payload"][item]["granularity"] = dest_gran
 
-                    self.validated_schemas[name] = message['payload']
+                    self.validated_schemas[name] = message["payload"]
             except ValidationError:
                 logging.debug("validation error")
             except json.JSONDecodeError:
@@ -698,9 +700,9 @@ class OuterWrapper(ABC):
             except Empty:
                 continue
 
-            if message['signal'] == 'increment':
+            if message["signal"] == "increment":
                 try:
-                    self.increment_handler(event, message['incstep'])
+                    self.increment_handler(event, message["incstep"])
                 except Exception as e:
                     logging.critical(e)
                     event.set()
@@ -718,9 +720,9 @@ class OuterWrapper(ABC):
         while not event.is_set():
             try:
                 message = self.broker_queue.get(timeout=10)
-                if message.get('status') == 'booted':
+                if message.get("status") == "booted":
                     self.connected_to_broker = True
-                    self.initial_year = message.get('initial_year')
+                    self.initial_year = message.get("initial_year")
             except Empty:
                 logging.critical("Timed out waiting for broker message")
                 event.set()
@@ -732,9 +734,9 @@ class OuterWrapper(ABC):
         """
 
         # initialize the model
-        self.input_schemas = self.load_json_objects('/opt/schemas/input')
-        self.output_schemas = self.load_json_objects('/opt/schemas/output')
-        initial_conditions = self.load_json_objects('/opt/config')
+        self.input_schemas = self.load_json_objects("/opt/schemas/input")
+        self.output_schemas = self.load_json_objects("/opt/schemas/output")
+        initial_conditions = self.load_json_objects("/opt/config")
         self.configure(**initial_conditions)
 
         # start the threads

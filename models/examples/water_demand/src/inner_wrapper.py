@@ -7,7 +7,7 @@ import glob
 import sys
 import logging
 
-sys.path.append('/')
+sys.path.append("/")
 from outer_wrapper import OuterWrapper
 from Water_Demand_Model import Water_Demand_Simulation
 
@@ -20,26 +20,28 @@ class InnerWrapper(OuterWrapper):
         )
 
     def configure(self, **kwargs):
-        if 'rates' in kwargs.keys():
-            self.rate = kwargs['rates']
+        if "rates" in kwargs.keys():
+            self.rate = kwargs["rates"]
         else:
-            logging.warning(f'incstep {self.incstep}: rates not found')
-        if '2016_populations' in kwargs.keys():
-            self.countypop = kwargs['2016_populations']
+            logging.warning(f"incstep {self.incstep}: rates not found")
+        if "2016_populations" in kwargs.keys():
+            self.countypop = kwargs["2016_populations"]
         else:
-            logging.warning(f'incstep {self.incstep}: 2016_populations not found')
+            logging.warning(
+                f"incstep {self.incstep}: 2016_populations not found"
+            )
 
     def increment(self, **kwargs):
-        if 'population' in kwargs.keys():
-            self.countypop = kwargs['population']['population']['data']
+        if "population" in kwargs.keys():
+            self.countypop = kwargs["population"]["population"]["data"]
         elif self.incstep > 1:
-            logging.warning(f'incstep {self.incstep}: population not found')
+            logging.warning(f"incstep {self.incstep}: population not found")
 
         demand = Water_Demand_Simulation(self.countypop, self.rate)
 
         results = {
-            'water_demand': {
-                'water_demand': {'data': demand, 'granularity': 'county'}
+            "water_demand": {
+                "water_demand": {"data": demand, "granularity": "county"}
             }
         }
         return results

@@ -46,9 +46,13 @@ def temp_inc(init_data, year):
                 lon += 180
 
             # precipitation (mm)
-            translated_pr[f"lat_{int(lat*100)}_lon_{int(lon*100)}"] = lon_values[0]
+            translated_pr[
+                f"lat_{int(lat*100)}_lon_{int(lon*100)}"
+            ] = lon_values[0]
             # evaporation (mm)
-            translated_ev[f"lat_{int(lat*100)}_lon_{int(lon*100)}"] = lon_values[1]
+            translated_ev[
+                f"lat_{int(lat*100)}_lon_{int(lon*100)}"
+            ] = lon_values[1]
 
     return (
         temperature,

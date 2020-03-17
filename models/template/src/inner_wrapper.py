@@ -6,7 +6,7 @@
 import glob
 import sys
 
-sys.path.append('/')
+sys.path.append("/")
 from outer_wrapper import OuterWrapper
 
 # import helper functions
@@ -26,26 +26,34 @@ class InnerWrapper(OuterWrapper):
 
     def configure(self, **kwargs):
         # config_datax refers to the names of the JSON files in the config directory
-        self.input_data1 = kwargs['config_data1']
-        self.input_data2 = kwargs['config_data2']
-        self.input_data3 = kwargs['config_data3']
+        self.input_data1 = kwargs["config_data1"]
+        self.input_data2 = kwargs["config_data2"]
+        self.input_data3 = kwargs["config_data3"]
 
     # this model has two input schemas, and so expects input from two other models
     def increment(self, **kwargs):
 
         # input_model_name1 matches the name of a JSON file in the input schemas directory
-        if 'input_model_name1' in kwargs.keys():
+        if "input_model_name1" in kwargs.keys():
             # example_input1 and example_input2 refer to fields in the input schema
-            self.input_data1 = kwargs['input_model_name1']['example_input1']['data']
-            self.input_data2 = kwargs['input_model_name1']['example_input2']['data']
+            self.input_data1 = kwargs["input_model_name1"]["example_input1"][
+                "data"
+            ]
+            self.input_data2 = kwargs["input_model_name1"]["example_input2"][
+                "data"
+            ]
 
         # input_model_name2 matches the name of a JSON file in the input schemas directory
-        if 'input_model_name2' in kwargs.keys():
+        if "input_model_name2" in kwargs.keys():
             # example_input3 refers to a field in the input schema
-            self.input_data3 = kwargs['input_model_name2']['example_input3']['data']
+            self.input_data3 = kwargs["input_model_name2"]["example_input3"][
+                "data"
+            ]
 
         # calculate the model's outputs
-        output1, output2 = my_function(self.input_data1, self.input_data2, self.input_data3)
+        output1, output2 = my_function(
+            self.input_data1, self.input_data2, self.input_data3
+        )
 
         # template_output_schema matches the name of the JSON file in the output schemas directory
         # example_output1 and example_output2 refer to fields in the output schema
@@ -53,9 +61,9 @@ class InnerWrapper(OuterWrapper):
         # example_output2 is returned by my_function() in the latlon granularity
         # before it is published, the data will automatically be translated to the granularities specified in template_output_schema
         return {
-            'template_output_schema': {
-                'example_output1': {'data': output1, 'granularity': 'county'},
-                'example_output2': {'data': output2, 'granularity': 'latlon'}
+            "template_output_schema": {
+                "example_output1": {"data": output1, "granularity": "county"},
+                "example_output2": {"data": output2, "granularity": "latlon"},
             }
         }
 

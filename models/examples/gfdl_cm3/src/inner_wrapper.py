@@ -7,7 +7,7 @@ import glob
 import sys
 import logging
 
-sys.path.append('/')
+sys.path.append("/")
 from outer_wrapper import OuterWrapper
 from climate_model import temp_inc
 
@@ -20,13 +20,13 @@ class InnerWrapper(OuterWrapper):
         )
 
     def configure(self, **kwargs):
-        self.raw_data = kwargs['rcp26data']
-        if 'rcp26data' in kwargs.keys():
+        self.raw_data = kwargs["rcp26data"]
+        if "rcp26data" in kwargs.keys():
             self.global_temp, self.precipitation, self.evaporation = temp_inc(
                 self.raw_data, self.incstep
             )
         else:
-            logging.warning(f'incstep {self.incstep}: rcp26data not found')
+            logging.warning(f"incstep {self.incstep}: rcp26data not found")
 
     def increment(self, **kwargs):
         self.global_temp, self.precipitation, self.evaporation = temp_inc(
@@ -34,18 +34,18 @@ class InnerWrapper(OuterWrapper):
         )
 
         results = {
-            'gfdl_cm3': {
-                'global_temp': {
-                    'data': {'global_temp': self.global_temp},
-                    'granularity': None,
+            "gfdl_cm3": {
+                "global_temp": {
+                    "data": {"global_temp": self.global_temp},
+                    "granularity": None,
                 },
-                'precipitation': {
-                    'data': self.precipitation,
-                    'granularity': 'latlon',
+                "precipitation": {
+                    "data": self.precipitation,
+                    "granularity": "latlon",
                 },
-                'evaporation': {
-                    'data': self.evaporation,
-                    'granularity': 'latlon',
+                "evaporation": {
+                    "data": self.evaporation,
+                    "granularity": "latlon",
                 },
             }
         }

@@ -7,7 +7,7 @@ import glob
 import sys
 import logging
 
-sys.path.append('/')
+sys.path.append("/")
 from outer_wrapper import OuterWrapper
 from GenerationSimulation import gen_sim
 
@@ -20,27 +20,29 @@ class InnerWrapper(OuterWrapper):
         )
 
     def configure(self, **kwargs):
-        if 'state_energy_profiles' in kwargs.keys():
-            self.prof = kwargs['state_energy_profiles']
+        if "state_energy_profiles" in kwargs.keys():
+            self.prof = kwargs["state_energy_profiles"]
         else:
-            logging.warning(f'incstep {self.incstep}: state_energy_profiles not found')
-        if '2016_demand' in kwargs.keys():
-            self.dem = kwargs['2016_demand']
+            logging.warning(
+                f"incstep {self.incstep}: state_energy_profiles not found"
+            )
+        if "2016_demand" in kwargs.keys():
+            self.dem = kwargs["2016_demand"]
         else:
-            logging.warning(f'incstep {self.incstep}: 2016_demand not found')
+            logging.warning(f"incstep {self.incstep}: 2016_demand not found")
 
     def increment(self, **kwargs):
-        if 'power_demand' in kwargs.keys():
-            self.dem = kwargs['power_demand']['power_demand']['data']
+        if "power_demand" in kwargs.keys():
+            self.dem = kwargs["power_demand"]["power_demand"]["data"]
         elif self.incstep > 1:
-            logging.warning(f'incstep {self.incstep}: power_demand not found')
+            logging.warning(f"incstep {self.incstep}: power_demand not found")
 
         emissions, water = gen_sim(self.dem, self.prof)
 
         results = {
-            'power_supply': {
-                'co2': {'data': emissions, 'granularity': 'county'},
-                'thermo_water': {'data': water, 'granularity': 'county'},
+            "power_supply": {
+                "co2": {"data": emissions, "granularity": "county"},
+                "thermo_water": {"data": water, "granularity": "county"},
             }
         }
         return results

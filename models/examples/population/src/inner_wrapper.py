@@ -7,7 +7,7 @@ import glob
 import sys
 import logging
 
-sys.path.append('/')
+sys.path.append("/")
 from outer_wrapper import OuterWrapper
 from PopulationSimulation import pop_sim, get_data
 
@@ -23,16 +23,18 @@ class InnerWrapper(OuterWrapper):
         self.max_incstep = 50
 
     def configure(self, **kwargs):
-        if 'county_populations' in kwargs.keys():
-            self.data = pop_sim(kwargs['county_populations'], self.max_incstep)
+        if "county_populations" in kwargs.keys():
+            self.data = pop_sim(kwargs["county_populations"], self.max_incstep)
         else:
-            logging.warning(f'incstep {self.incstep}: county_populations not found')
+            logging.warning(
+                f"incstep {self.incstep}: county_populations not found"
+            )
 
     def increment(self, **kwargs):
         data = get_data(self.data, self.initial_year + self.incstep)
         results = {
-            'population': {
-                'population': {'data': data, 'granularity': 'county'}
+            "population": {
+                "population": {"data": data, "granularity": "county"}
             }
         }
         return results

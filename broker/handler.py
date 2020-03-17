@@ -19,27 +19,33 @@ class Broker:
         constructor for the broker
         """
 
-        with open('/opt/config.json') as models_file:
+        with open("/opt/config.json") as models_file:
             config = json.load(models_file)
-        self.models = {model: {} for model in config['models']}
-        self.boot_timer = config['boot_timer']  # units: seconds
-        self.watchdog_timer = config['watchdog_timer']  # units: seconds
-        self.max_incstep = config['max_incstep']  # the number of increments to run before shutting down
-        self.initial_year = config['initial_year']  # the year that corresponds to incstep 0 (the data in the config directory)
-        self.mongo_port = config['mongo_port']  # the port for the SIMoN Mongo instance (needs to be the same port as in the build/docker-compose.yml file)
+        self.models = {model: {} for model in config["models"]}
+        self.boot_timer = config["boot_timer"]  # units: seconds
+        self.watchdog_timer = config["watchdog_timer"]  # units: seconds
+        self.max_incstep = config[
+            "max_incstep"
+        ]  # the number of increments to run before shutting down
+        self.initial_year = config[
+            "initial_year"
+        ]  # the year that corresponds to incstep 0 (the data in the config directory)
+        self.mongo_port = config[
+            "mongo_port"
+        ]  # the port for the SIMoN Mongo instance (needs to be the same port as in the build/docker-compose.yml file)
 
-        self.status = 'booting'
+        self.status = "booting"
         self.pub_queue = Queue()
         self.model_tracker = set()
         self.incstep = 1
         self.client = None
         self.mongo_queue = Queue()
-        self.broker_id = 'broker'
+        self.broker_id = "broker"
 
         logging.basicConfig(
             level=logging.INFO,
             stream=sys.stdout,
-            format='%(asctime)s - %(levelname)s - %(filename)s:%(funcName)s:%(lineno)d - %(message)s',
+            format="%(asctime)s - %(levelname)s - %(filename)s:%(funcName)s:%(lineno)d - %(message)s",
         )
         logging.info(f"looking for models: {list(self.models.keys())}")
 
@@ -51,7 +57,9 @@ class Broker:
         """
 
         try:
-            self.client = pymongo.MongoClient(f'mongodb://simon_mongodb:{self.mongo_port}/')
+            self.client = pymongo.MongoClient(
+                f"mongodb://simon_mongodb:{self.mongo_port}/"
+            )
             logging.info("connected to Mongo DB")
         except Exception as e:
             logging.error("failed to connect to Mongo DB")
@@ -78,13 +86,13 @@ class Broker:
         while not event.is_set():
             time.sleep(1)
             message = {}
-            message['source'] = self.broker_id
-            message['time'] = time.time()
-            message['signal'] = 'status'
-            message['status'] = self.status
-            message['incstep'] = self.incstep
-            message['initial_year'] = self.initial_year
-            message['current_year'] = self.incstep + self.initial_year
+            message["source"] = self.broker_id
+            message["time"] = time.time()
+            message["signal"] = "status"
+            message["status"] = self.status
+            message["incstep"] = self.incstep
+            message["initial_year"] = self.initial_year
+            message["current_year"] = self.incstep + self.initial_year
             self.pub_queue.put(message)
 
     def pub(self, event, context):
@@ -96,7 +104,7 @@ class Broker:
 
         sock = context.socket(zmq.PUB)
         sock.setsockopt(zmq.LINGER, 1000)
-        sock.connect('tcp://broker:5555')
+        sock.connect("tcp://broker:5555")
         while not event.is_set():
             try:
                 message = self.pub_queue.get(timeout=0.1)
@@ -118,7 +126,7 @@ class Broker:
         sock.setsockopt(zmq.SUBSCRIBE, b"")
         sock.setsockopt(zmq.RCVTIMEO, 0)
         sock.setsockopt(zmq.LINGER, 1000)
-        sock.connect('tcp://broker:5556')
+        sock.connect("tcp://broker:5556")
         while not event.is_set():
             try:
                 message = sock.recv_json()
@@ -126,13 +134,13 @@ class Broker:
                 continue
             logging.debug(json.dumps(message))
             if (
-                message.get('source') in self.models
-                and message.get('signal') == 'status'
+                message.get("source") in self.models
+                and message.get("signal") == "status"
             ):
-                self.models[message.get('source')] = message
-                self.model_tracker.add(message.get('source'))
-            if message.get('signal') == 'data':
-                self.mongo_queue.put(('sub', message))
+                self.models[message.get("source")] = message
+                self.model_tracker.add(message.get("source"))
+            if message.get("signal") == "data":
+                self.mongo_queue.put(("sub", message))
 
         sock.close()
 
@@ -149,11 +157,11 @@ class Broker:
         frontend.setsockopt(zmq.SUBSCRIBE, b"")
         frontend.setsockopt(zmq.RCVTIMEO, 0)
         frontend.setsockopt(zmq.LINGER, 1000)
-        frontend.bind('tcp://*:5555')
+        frontend.bind("tcp://*:5555")
 
         backend = context.socket(zmq.PUB)
         backend.setsockopt(zmq.LINGER, 1000)
-        backend.bind('tcp://*:5556')
+        backend.bind("tcp://*:5556")
 
         logging.info("listening in forwarder")
         while not event.is_set():
@@ -181,12 +189,12 @@ class Broker:
         while not event.is_set():
             for i in range(
                 self.boot_timer
-                if self.status == 'booting'
+                if self.status == "booting"
                 else self.watchdog_timer
             ):
                 time.sleep(1)
                 if self.model_tracker == set(self.models.keys()):
-                    self.status = 'booted'
+                    self.status = "booted"
                     self.model_tracker.clear()
                     break
             else:
@@ -213,8 +221,8 @@ class Broker:
             # check to send an increment pulse
             for model, status in self.models.items():
                 if (
-                    status.get('status') != 'ready'
-                    or status.get('incstep') != self.incstep
+                    status.get("status") != "ready"
+                    or status.get("incstep") != self.incstep
                 ):
                     break
             else:
@@ -232,12 +240,12 @@ class Broker:
                 else:
                     logging.info(f"sending increment pulse {self.incstep}")
                     message = {}
-                    message['source'] = self.broker_id
-                    message['time'] = time.time()
-                    message['signal'] = 'increment'
-                    message['status'] = self.status
-                    message['incstep'] = self.incstep
-                    message['year'] = self.incstep + self.initial_year
+                    message["source"] = self.broker_id
+                    message["time"] = time.time()
+                    message["signal"] = "increment"
+                    message["status"] = self.status
+                    message["incstep"] = self.incstep
+                    message["year"] = self.incstep + self.initial_year
                     self.pub_queue.put(message)
                     self.incstep += 1
 
@@ -250,7 +258,9 @@ class Broker:
         shutdown = Event()
         context = zmq.Context()
 
-        forwarder_thread = Thread(target=self.forwarder, args=(shutdown, context,))
+        forwarder_thread = Thread(
+            target=self.forwarder, args=(shutdown, context,)
+        )
         forwarder_thread.start()
 
         subscribe_thread = Thread(target=self.sub, args=(shutdown, context,))
