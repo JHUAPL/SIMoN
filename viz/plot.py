@@ -102,6 +102,7 @@ def plot_mongo_doc(
             print(f"plotting {dataset} (granularity: {granularity})")
         instance_col_name = "ID"
         year = data["year"]
+        unit = data["payload"][dataset]["unit"]
 
         df[dataset] = pd.DataFrame.from_dict(
             data["payload"][dataset]["data"],
@@ -147,7 +148,7 @@ def plot_mongo_doc(
             else ("(x, y)", "($x, $y)")
         )
         fig = figure(
-            title=f"USA {dataset} ({year})",
+            title=f"{dataset} ({unit}, {year})",
             tools=TOOLS,
             plot_width=plot_width,
             plot_height=plot_height,

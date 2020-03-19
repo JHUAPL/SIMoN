@@ -4,8 +4,8 @@
     "water_demand": {
       "type": "object",
       "properties":{
-              "data": {"type": "object"},
-              "granularity": {"type": "string", "value": "state"}
+              "data": {"type": "object", "unit": "Mgal"},
+              "granularity": {"type": "string", "value": "county"}
       }
     }
   },

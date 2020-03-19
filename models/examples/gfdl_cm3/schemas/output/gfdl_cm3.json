@@ -4,21 +4,21 @@
     "precipitation": {
       "type": "object",
       "properties":{
-              "data": {"type": "object"},
+              "data": {"type": "object", "unit": "mm"},
               "granularity": {"type": "string", "value": "huc8"}
       }
     },
     "evaporation": {
       "type": "object",
       "properties":{
-              "data": {"type": "object"},
+              "data": {"type": "object", "unit": "mm"},
               "granularity": {"type": "string", "value": "latlon"}
       }
     },
     "global_temp": {
       "type": "object",
       "properties":{
-              "data": {"type": "object"},
+              "data": {"type": "object", "unit": "\u00b0C"},
               "granularity": {"type": "null"}
       }
     }

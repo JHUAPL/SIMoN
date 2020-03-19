@@ -4,7 +4,7 @@
     "power_demand": {
       "type": "object",
       "properties":{
-              "data": {"type": "object"},
+              "data": {"type": "object", "unit": "MWh"},
               "granularity": {"type": "string", "value": "county"}
       }
     }

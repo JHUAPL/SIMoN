@@ -4,14 +4,14 @@
     "co2": {
       "type": "object",
       "properties":{
-        "data": {"type": "object"},
+        "data": {"type": "object", "unit": "tons"},
         "granularity": {"type": "string", "value": "nerc"}
       }
     },
     "thermo_water": {
       "type": "object",
       "properties":{
-        "data": {"type": "object"},
+        "data": {"type": "object", "unit": "Mgal"},
         "granularity": {"type": "string", "value": "nerc"}
       }
     }
