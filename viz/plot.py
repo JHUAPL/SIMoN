@@ -153,7 +153,7 @@ def plot_mongo_doc(
             plot_height=plot_height,
             x_axis_location=None,
             y_axis_location=None,
-            tooltips=[("Name", "@name"), ("Value", "@value"), coords_tuple],
+            tooltips=[("Name", "@name"), ("Value", "@value{(0.000 a)}"), coords_tuple],
         )
         fig.grid.grid_line_color = None
         fig.hover.point_policy = "follow_mouse"
