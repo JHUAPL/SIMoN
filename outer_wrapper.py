@@ -556,7 +556,9 @@ class OuterWrapper(ABC):
                             disagg_name=dagg,
                         )
                         message["payload"][item]["data"] = data
-                        message["payload"][item]["unit"] = schema["properties"][item]["properties"]["data"].get("unit", "")
+                        message["payload"][item]["unit"] = schema[
+                            "properties"
+                        ][item]["properties"]["data"].get("unit", "")
                         message["payload"][item]["granularity"] = dest_gran
 
                 except ValidationError:
@@ -674,7 +676,9 @@ class OuterWrapper(ABC):
                             disagg_name=dagg,
                         )
                         message["payload"][item]["data"] = data
-                        message["payload"][item]["unit"] = schema["properties"][item]["properties"]["data"].get("unit", "")
+                        message["payload"][item]["unit"] = schema[
+                            "properties"
+                        ][item]["properties"]["data"].get("unit", "")
                         message["payload"][item]["granularity"] = dest_gran
 
                     self.validated_schemas[name] = message["payload"]

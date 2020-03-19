@@ -47,7 +47,9 @@ class InnerWrapper(OuterWrapper):
         elif self.incstep > 1:
             logging.warning(f"incstep {self.incstep}: thermo_water not found")
 
-        demand = Water_Demand_Simulation(self.countypop, self.rate, self.thermo_water)
+        demand = Water_Demand_Simulation(
+            self.countypop, self.rate, self.thermo_water
+        )
 
         results = {
             "water_demand": {
