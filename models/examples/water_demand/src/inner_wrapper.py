@@ -24,6 +24,11 @@ class InnerWrapper(OuterWrapper):
             self.rate = kwargs["rates"]
         else:
             logging.warning(f"incstep {self.incstep}: rates not found")
+        if "thermo_water" in kwargs.keys():
+            self.thermo_water = kwargs["thermo_water"]
+        else:
+            logging.warning(f"incstep {self.incstep}: thermo_water not found")
+            self.thermo_water = {}
         if "2016_populations" in kwargs.keys():
             self.countypop = kwargs["2016_populations"]
         else:
@@ -37,7 +42,12 @@ class InnerWrapper(OuterWrapper):
         elif self.incstep > 1:
             logging.warning(f"incstep {self.incstep}: population not found")
 
-        demand = Water_Demand_Simulation(self.countypop, self.rate)
+        if "power_supply" in kwargs.keys():
+            self.thermo_water = kwargs["power_supply"]["thermo_water"]["data"]
+        elif self.incstep > 1:
+            logging.warning(f"incstep {self.incstep}: thermo_water not found")
+
+        demand = Water_Demand_Simulation(self.countypop, self.rate, self.thermo_water)
 
         results = {
             "water_demand": {
