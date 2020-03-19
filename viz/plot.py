@@ -136,7 +136,8 @@ def plot_mongo_doc(
         plot_data = dict(
             x=geographies[dataset]["x"].tolist(),
             y=geographies[dataset]["y"].tolist(),
-            name=geographies[dataset]["ID"].tolist(),
+            name=geographies[dataset]["NAME"].tolist(),
+            identifier=geographies[dataset]["ID"].tolist(),
             value=geographies[dataset][f"{dataset}_value"].tolist(),
         )
 
@@ -154,7 +155,7 @@ def plot_mongo_doc(
             plot_height=plot_height,
             x_axis_location=None,
             y_axis_location=None,
-            tooltips=[("Name", "@name"), ("Value", "@value{(0.000 a)}"), coords_tuple],
+            tooltips=[("Name", "@name"), ("ID", "@identifier"), ("Value", "@value{(0.000 a)}"), coords_tuple],
         )
         fig.grid.grid_line_color = None
         fig.hover.point_policy = "follow_mouse"
