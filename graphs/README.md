@@ -22,8 +22,8 @@ The granularities in the provided granularity graph are:
   * `usa48` (a single region for the contiguous United States)
   * `state` (49 regions: the lower 48 states plus Washington, DC)
   * `county` (3108 counties, including Washington, DC)
-  * `nerc` (22 North American Electric Reliability Corporation regions)
-  * `huc8` (2119 HUC 8 regions)
+  * `nerc` (22 North American Electric Reliability Corporation "NERC" regions)
+  * `huc8` (2119 Hydrological Unit Code 8 "HUC8" watershed regions)
   * `latlon` (209 latitude-longitude grid squares)
 
 ## Aggregators and Disaggregators
