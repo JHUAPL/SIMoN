@@ -71,48 +71,48 @@ You can also adjust the values of the `agg` and `dagg` properties to use differe
 ## Example models
 
 ### Population (Holt's linear fit)
-The population model uses Holt's linear regression (implemented in the `statsmodel` Python package) to predict population per county. It extrapolates US Census Bureau population data from 2000 to 2016 into the future, making a population prediction for each future year. The model gives more weight to the most recent historical data, so the population change from 2015 to 2016 is more significant than the change between 2000 and 2001.
+The population model uses Holt's linear regression method (implemented in the `statsmodel` Python package) to predict the population of each county. It extrapolates US Census Bureau population data from 2000 to 2016 into the future, making a population prediction for each future year. The model gives more weight to the most recent historical data, so the population change from 2015 to 2016 is more significant than the change between 2000 and 2001.
 
-Config (initialization) data: historical population per county (US Census Bureau, [2000-2010](https://www.census.gov/data/datasets/time-series/demo/popest/intercensal-2000-2010-counties.html), [2010-2016](https://www.census.gov/data/datasets/time-series/demo/popest/2010s-counties-total.html), version published in 2016).
+Config (initialization) data: historical county population (US Census Bureau, [2000-2010](https://www.census.gov/data/datasets/time-series/demo/popest/intercensal-2000-2010-counties.html), [2010-2016](https://www.census.gov/data/datasets/time-series/demo/popest/2010s-counties-total.html), version published in 2016).
 
 Input from other models: none.
 
 Output: a dictionary that maps each county FIPS code to its population.
 
 ### Power Demand
-The power demand model calculates power demand per county by multiplying each county's population by its state's power consumption per capita.
+The power demand model calculates each county's power demand by multiplying its population by its state's power consumption per capita.
 
-Config (initialization) data: historical population (2016) per county and state consumption per capita ([US Energy Information Administration](https://www.eia.gov/electricity/data/state/)).
+Config (initialization) data: historical county population (2016) and state consumption per capita, which was calculated by dividing each state's total consumption ([US Energy Information Administration](https://www.eia.gov/electricity/data/state/)) by its 2016 population.
 
-Input from other models: output from the population model.
+Input from other models: county population from the population model.
 
-Output: a dictionary that maps each county FIPS code to its power demand, in megawatt hours (Mwh).
+Output: a dictionary that maps each county FIPS code to its power demand, in megawatt hours (MWh).
 
 ### Power Supply
-The power supply model calculates power supply per county by assuming that power demand is met in equilibrium (supply = demand). It aggregates the counties' demand to the state level by converting every county FIPS code to its corresponding state code. Each state's demand is then matched with the state's power supply profile, and the ratio of the two is used as a scaling factor for all of that state's counties. Each county's power demand is multiplied by its state's scaling factor to determine its power supply.
+The power supply model calculates the emissions cost of each's county power production by assuming that power supply can freely shift to meet power demand in equilibrium (supply = demand, production = consumption) at a constant price. The provided energy profile gives each state's pre-calculated rate of emissions per MWh of energy production. Each county's power demand is multiplied by its state's rate to determine its total carbon dioxide emissions and its thermoelectric water usage, for the level of power that is demanded and produced.
 
-Config (initialization) data: historical population (2016) per county and state energy profiles ([US Energy Information Administration](https://www.eia.gov/electricity/data/state/)).
+Config (initialization) data: historical county population (2016) and state energy profiles ([US Energy Information Administration](https://www.eia.gov/electricity/data/state/)).
 
-Input from other models: output from the power demand model.
+Input from other models: county power demand from the power demand model.
 
-Output: a dictionary that maps each county FIPS code to its power supply, in megawatt hours (Mwh).
+Output: a dictionary that maps each county FIPS code to its carbon dioxide (CO2) emissions and its thermoelectric water usage (Mgal).
 
 ### Water Demand
-The water demand model calculates water demand per county by multiplying each county's population by its water consumption per capita.
+The water demand model calculates each county's water demand by multiplying its population by its water consumption per capita, and then adding the county's thermoelectric water usage from the power supply model's output.
 
-Water consumption rates are pre-calculated, by taking irrigation and thermoelectric, total consumptive use, fresh in Mgal/d, and subtracting that value by thermoelectric recirculating, total consumptive use, fresh in Mgal/d. It divides that value by the total population for that county, then multiplies the value per day by 365 to get the value per year.
+Water consumption rates for each county were calculated by subtracting "thermoelectric recirculating, total consumptive use, fresh in Mgal/d" from "irrigation and thermoelectric water, total consumptive use, fresh in Mgal/d". The difference was divided by the county's 2015 population, then multiplied by 365 to convert the daily rate to the annual rate.
 
-Config (initialization) data: historical population (2016) per county and water use per county ([United States Geological Survey](https://www.sciencebase.gov/catalog/item/get/5af3311be4b0da30c1b245d8), 2015).
+Config (initialization) data: historical county population (2016) and county water consumption per capita ([United States Geological Survey](https://www.sciencebase.gov/catalog/item/get/5af3311be4b0da30c1b245d8), 2015).
 
-Input from other models: output from the population model.
+Input from other models: county population from the population model and thermoelectric water usage from the power supply model.
 
-Output: a dictionary that maps each county FIPS codes to its water demand, in millions of gallons (Mgal) per year.
+Output: a dictionary that maps each county FIPS codes to its water demand, in millions of gallons (Mgal).
 
 ### GFDL CM3
-The [GFDL CM3](https://www.gfdl.noaa.gov/coupled-physical-model-cm3/) climate model, published by the National Oceanic and Atmospheric Administration ([NOAA](https://www.gfdl.noaa.gov/about/)), uses representative concentration pathways to determine atmospheric conditions and the consequent effects on temperature, precipitation, and evaporation. The SIMoN model does not perform any of these actual calculations, but simply retrieves pre-calculated data from the config file.
+The [GFDL CM3](https://www.gfdl.noaa.gov/coupled-physical-model-cm3/) climate model, published by the National Oceanic and Atmospheric Administration ([NOAA](https://www.gfdl.noaa.gov/about/)), uses representative concentration pathways to determine atmospheric conditions and its affects on temperature, precipitation, and evaporation. The SIMoN model does not perform any of these actual calculations, but simply retrieves pre-calculated data from the config file.
 
 Config (initialization) data: RCP data for temperature, precipitation, and evaporation ([NOAA](ftp://nomads.gfdl.noaa.gov/CMIP5/output1/NOAA-GFDL/GFDL-CM3)).
 
 Input from other models: none.
 
-Output: a dictionary that maps each latitude-longitude grid square to its evaporation (mm) and precipitation (mm) values, plus a single scalar value for global temperature (Celsius).
+Output: a dictionary that maps each latitude-longitude grid square to its evaporation (mm) and precipitation (mm) values, plus a single value for global temperature (degrees Celsius).
