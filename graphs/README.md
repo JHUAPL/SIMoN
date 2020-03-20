@@ -10,21 +10,28 @@ Run `make graph` from the top-level `simon` directory.
 
 This will start the `simon-graph` Docker container, and create an abstract graph / instance graph pair in the `graphs/out` directory. The container will exit once the graph pair has been built. To use the generated graphs for the next SIMoN run, rename the abstract graph to abstract-graph.geojson, and the instance graph to instance-graph.geojson.
 
-## Granularities
+## Geographic Granularities
 
 SIMoN currently integrates models of population, power systems, water systems, and climate change. These domains each have their own hierarchies of geography, which include political, topographical, regulatory, and latitude-longitude grid boundaries.
 
-In order to translate data from its models across granularities, SIMoN uses shapefiles to define rigorous geographies in a partially ordered set of geographic partitions (e.g., states, counties, watersheds, power regions, and latitude-longitude grid squares). The sample shapefiles provided in the `graphs/shapefiles` directory were clipped to the land boundary of the contiguous United States, in order to have consistent scope. Their geometries were compressed / simplified using a distance-based method (the Douglas-Peucker algorithm) with a tolerance of 1 kilometer. They use [EPSG:3085](https://epsg.io/3085-1901) NAD83(HARN) / Texas Centric Albers Equal Area as their coordinate reference system.
-
-SIMoN creates a corresponding directed acyclic network graph representing all the granularities, their corresponding entities, and their relationships to each other. The individual models feed each other updated data inputs at synchronized time intervals, and traverse the network graph to translate their data from one granularity to another. A sample granularity graph is provided, but modelers can extend it or create a graph of their own, by modifying and using the `graphs/build.py` script.
-
-The granularities in the provided granularity graph are:
+The supported granularities are:
   * `usa48` (a single region for the contiguous United States)
   * `state` (49 regions: the lower 48 states plus Washington, DC)
   * `county` (3108 counties, including Washington, DC)
   * `nerc` (22 North American Electric Reliability Corporation "NERC" regions)
   * `huc8` (2119 Hydrological Unit Code 8 "HUC8" watershed regions)
   * `latlon` (209 latitude-longitude grid squares)
+
+In order to represent granularities, SIMoN uses shapefiles to define rigorous geographies in a partially ordered set of geographic partitions (e.g., states, counties, watersheds, power regions, and latitude-longitude grid squares). The sample shapefiles provided in the `graphs/shapefiles` directory were clipped to the land boundary of the contiguous United States, in order to have consistent scope. Their geometries were compressed / simplified using a distance-based method (the Douglas-Peucker algorithm) with a tolerance of 1 kilometer. They use [EPSG:3085](https://epsg.io/3085-1901) NAD83(HARN) / Texas Centric Albers Equal Area as their coordinate reference system.
+
+## Graphs
+
+To translate data from the models across granularities, SIMoN constructs a pair of directed acyclic network graphs, representing all the granularities, their corresponding entities, and their relationships to each other. The individual models feed each other updated data inputs at synchronized time intervals, and traverse the network graphs to translate their data from one granularity to another. A sample pair of granularity graphs is provided, but modelers can extend it or create a graph pair of their own, by modifying the `graphs/build.py` script and running `make graph`.
+
+The abstract graph is used to define the conceptual relationships between geographic entities. The modeler defines the abstract graph using an edge list in the `graphs/config.json` file. Geographies on the same branch of the abstract graph are neatly subsumed under each other; for example, a county fits within the boundaries of exactly one state. Geographies on different branches may intersect with each other; for example, a NERC region might cross the boundaries of more than one state. Granularity graphs with HUC 12 and census tract regions are not included in the current release, but are shown here for illustration.
+![abstract-graph-diagram](simon-abstract-graph-diagram.png)
+
+The instance graph is constructed from the abstract graph, using the `graphs/build.py` script and the provided shapefiles. Each vertex in the abstract graph is replaced with vertices that represent the actual instances of the conceptual geography, which are retrieved from the corresponding shapefile. For example, the `county` vertex in the abstract graph is replaced by the 3108 county regions defined in the `county.shp` shapefile. Each `county` vertex in the instance graph has a single parent, the `state` vertex that it belongs to.
 
 ## Aggregators and Disaggregators
 
