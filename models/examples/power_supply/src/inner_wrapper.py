@@ -9,7 +9,7 @@ import logging
 
 sys.path.append("/")
 from outer_wrapper import OuterWrapper
-from GenerationSimulation import gen_sim
+from GenerationSimulation import gen_nerc
 
 
 class InnerWrapper(OuterWrapper):
@@ -20,11 +20,11 @@ class InnerWrapper(OuterWrapper):
         )
 
     def configure(self, **kwargs):
-        if "state_energy_profiles" in kwargs.keys():
-            self.prof = kwargs["state_energy_profiles"]
+        if "nerc_energy_profiles" in kwargs.keys():
+            self.prof = kwargs["nerc_energy_profiles"]
         else:
             logging.warning(
-                f"incstep {self.incstep}: state_energy_profiles not found"
+                f"incstep {self.incstep}: nerc_energy_profiles not found"
             )
         if "2016_demand" in kwargs.keys():
             self.dem = kwargs["2016_demand"]
@@ -37,12 +37,12 @@ class InnerWrapper(OuterWrapper):
         elif self.incstep > 1:
             logging.warning(f"incstep {self.incstep}: power_demand not found")
 
-        emissions, water = gen_sim(self.dem, self.prof)
+        emissions, water = gen_nerc(self.dem, self.prof)
 
         results = {
             "power_supply": {
-                "co2": {"data": emissions, "granularity": "county"},
-                "thermo_water": {"data": water, "granularity": "county"},
+                "co2": {"data": emissions, "granularity": "nerc"},
+                "thermo_water": {"data": water, "granularity": "nerc"},
             }
         }
         return results

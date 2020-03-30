@@ -6,7 +6,7 @@
 import pandas as pd
 
 
-def gen_sim(demand, prof):
+def gen_state(demand, prof):
 
     counties = (
         pd.DataFrame(demand, index=["demand"])
@@ -44,5 +44,17 @@ def gen_sim(demand, prof):
     for index, row in counties.iterrows():
         co2[index] = row["CO2 Emissions (tons)"]
         h2o[index] = row["Water Used (Mgal)"]
+
+    return co2, h2o
+
+
+def gen_nerc(demand, profile_rates):
+
+    co2 = {}
+    h2o = {}
+
+    for nerc in demand:
+        co2[nerc] = demand[nerc] * profile_rates.get(nerc, {}).get("co2 (tons/MWh)", 0)
+        h2o[nerc] = demand[nerc] * profile_rates.get(nerc, {}).get("water (Mgal/MWh)", 0)
 
     return co2, h2o
