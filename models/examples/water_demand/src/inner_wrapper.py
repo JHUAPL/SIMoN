@@ -24,8 +24,8 @@ class InnerWrapper(OuterWrapper):
             self.rate = kwargs["rates"]
         else:
             logging.warning(f"incstep {self.incstep}: rates not found")
-        if "thermo_water" in kwargs.keys():
-            self.thermo_water = kwargs["thermo_water"]
+        if "2016_thermo_water" in kwargs.keys():
+            self.thermo_water = kwargs["2016_thermo_water"]
         else:
             logging.warning(f"incstep {self.incstep}: thermo_water not found")
             self.thermo_water = {}
