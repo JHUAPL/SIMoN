@@ -70,7 +70,7 @@ You can also adjust the values of the `agg` and `dagg` properties to use differe
 
 ## Example models
 
-### Population (Holt's linear fit)
+### Population
 The population model uses Holt's linear regression method (implemented in the `statsmodel` Python package) to predict the population of each county. It extrapolates US Census Bureau population data from 2000 to 2016 into the future, making a population prediction for each future year. The model gives more weight to the most recent historical data, so the population change from 2015 to 2016 is more significant than the change between 2000 and 2001.
 
 Config (initialization) data: historical county population (US Census Bureau, [2000-2010](https://www.census.gov/data/datasets/time-series/demo/popest/intercensal-2000-2010-counties.html), [2010-2016](https://www.census.gov/data/datasets/time-series/demo/popest/2010s-counties-total.html), version published in 2016).
@@ -82,27 +82,27 @@ Output: a dictionary that maps each county FIPS code to its population.
 ### Power Demand
 The power demand model calculates each county's power demand by multiplying its population by its state's power consumption per capita.
 
-Config (initialization) data: historical county population (2016) and state consumption per capita, which was calculated by dividing each state's total consumption ([US Energy Information Administration](https://www.eia.gov/electricity/data/state/)) by its 2016 population.
+Config (initialization) data: historical county population (2016) and state consumption per capita, which was calculated by dividing each state's total consumption ([US Energy Information Administration](https://www.eia.gov/electricity/data/state/), 2016) by its 2016 population.
 
 Input from other models: county population from the population model.
 
 Output: a dictionary that maps each county FIPS code to its power demand, in megawatt hours (MWh).
 
 ### Power Supply
-The power supply model calculates the emissions cost of each's county power production by assuming that power supply can freely shift to meet power demand in equilibrium (supply = demand, production = consumption) at a constant price. The provided energy profile gives each state's pre-calculated rate of emissions per MWh of energy production. Each county's power demand is multiplied by its state's rate to determine its total carbon dioxide emissions and its thermoelectric water usage, for the level of power that is demanded and produced.
+The power supply model calculates the carbon dioxide emissions and thermoelectric water usage of each NERC region's power production by assuming that power supply can freely shift to meet power demand in equilibrium (supply = demand, production = consumption) at a constant price. The provided energy profile gives each NERC region's pre-calculated rates of emissions and water usage per MWh of energy production. Each NERC's power demand is multiplied by its profile rates to determine its total carbon dioxide emissions and its thermoelectric water usage, for the level of power that is demanded and produced.
 
-Config (initialization) data: historical county population (2016) and state energy profiles ([US Energy Information Administration](https://www.eia.gov/electricity/data/state/)).
+Config (initialization) data: historical county power demand (2016) and NERC energy profiles, which were calculated using the EIA 860 reports ([US Energy Information Administration](https://www.eia.gov/electricity/data/eia860/), 2016) and aggregating the power plants by NERC region.
 
-Input from other models: county power demand from the power demand model.
+Input from other models: NERC power demand from the power demand model.
 
-Output: a dictionary that maps each county FIPS code to its carbon dioxide (CO2) emissions and its thermoelectric water usage (Mgal).
+Output: a dictionary that maps each NERC region to its carbon dioxide (CO2) emissions (tons) and its thermoelectric water usage (Mgal).
 
 ### Water Demand
 The water demand model calculates each county's water demand by multiplying its population by its water consumption per capita, and then adding the county's thermoelectric water usage from the power supply model's output.
 
 Water consumption rates for each county were calculated by subtracting "thermoelectric recirculating, total consumptive use, fresh in Mgal/d" from "irrigation and thermoelectric water, total consumptive use, fresh in Mgal/d". The difference was divided by the county's 2015 population, then multiplied by 365 to convert the daily rate to the annual rate.
 
-Config (initialization) data: historical county population (2016) and county water consumption per capita ([United States Geological Survey](https://www.sciencebase.gov/catalog/item/get/5af3311be4b0da30c1b245d8), 2015).
+Config (initialization) data: historical county population (2016) and county water consumption per capita (2015), which was calculated by dividing each county's daily water consumption ([United States Geological Survey](https://www.sciencebase.gov/catalog/item/get/5af3311be4b0da30c1b245d8), 2015) by its 2015 population, and scaling to the annual per capita rate.
 
 Input from other models: county population from the population model and thermoelectric water usage from the power supply model.
 
