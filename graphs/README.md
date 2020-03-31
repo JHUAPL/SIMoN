@@ -20,7 +20,7 @@ The supported granularities are:
   * `county` (3108 counties, including Washington, DC)
   * `nerc` (22 North American Electric Reliability Corporation "NERC" regions)
   * `huc8` (2119 Hydrological Unit Code 8 "HUC8" watershed regions)
-  * `latlon` (209 latitude-longitude grid squares)
+  * `latlon` (209 latitude-longitude grid squares, which have a north-south distance of 2 degrees latitude and an east-west distance of 2.5 degrees longitude. Each square is named for the location coordinates of its bottom left corner.)
 
 In order to represent granularities, SIMoN uses shapefiles to define rigorous geographies in a partially ordered set of geographic partitions (e.g., states, counties, watersheds, power regions, and latitude-longitude grid squares). The sample shapefiles provided in the `graphs/shapefiles` directory were clipped to the land boundary of the contiguous United States, in order to have consistent scope. Their geometries were compressed / simplified using a distance-based method (the Douglas-Peucker algorithm) with a tolerance of 1 kilometer. They use [EPSG:3085](https://epsg.io/3085-1901) NAD83(HARN) / Texas Centric Albers Equal Area as their coordinate reference system.
 
