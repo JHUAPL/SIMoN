@@ -23,7 +23,8 @@ def pop_sim(init_data, num_increments):
 
         last_inc = int(max(data[key].keys()))
         for inc, value in zip(range(num_increments), future_pop):
-            data[key][str(last_inc + 1 + inc)] = value
+            # round negative population values to 0
+            data[key][str(last_inc + 1 + inc)] = value if value > 0 else 0
 
     return data
 
