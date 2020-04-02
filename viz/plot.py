@@ -148,8 +148,9 @@ def plot_mongo_doc(
             if projection == 4326
             else ("(x, y)", "($x, $y)")
         )
+        title = f"{dataset} ({unit}, {year})" if unit else f"{dataset} ({year})"
         fig = figure(
-            title=f"{dataset} ({unit}, {year})",
+            title=title,
             tools=TOOLS,
             plot_width=plot_width,
             plot_height=plot_height,
