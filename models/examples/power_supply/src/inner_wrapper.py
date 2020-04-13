@@ -27,7 +27,12 @@ class InnerWrapper(OuterWrapper):
                 f"incstep {self.incstep}: nerc_energy_profiles not found"
             )
         if "2016_demand" in kwargs.keys():
-            self.dem = kwargs["2016_demand"]
+            self.dem = self.translate(
+                data=kwargs["2016_demand"],
+                src="county",
+                dest="nerc",
+                variable="2016_power_demand",
+            )
         else:
             logging.warning(f"incstep {self.incstep}: 2016_demand not found")
 
