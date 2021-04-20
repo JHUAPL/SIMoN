@@ -1,6 +1,6 @@
 # SIMoN
 
-[System Integration with Multiscale Networks](SIMoN.pdf)
+[System Integration with Multiscale Networks](https://ieeexplore.ieee.org/abstract/document/9383983)
 
 Copyright 2020 The Johns Hopkins University Applied Physics Laboratory
 
